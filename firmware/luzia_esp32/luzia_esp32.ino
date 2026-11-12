@@ -6,7 +6,7 @@
 static const int PIN_RED = 25;
 static const int PIN_GREEN = 26;
 static const int PIN_BLUE = 27;
-static const int PIN_BUZZER = 14; // buzzer activo opcional
+static const int PIN_BUZZER = 14; // controlo da base NPN via resistência; buzzer opcional
 static const bool COMMON_ANODE = false;
 
 static const unsigned long WIFI_RETRY_INTERVAL_MS = 10000;
