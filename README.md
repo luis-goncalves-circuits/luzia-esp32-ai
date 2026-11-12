@@ -12,6 +12,18 @@ A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servido
 
 > O modo Free não é uma IA generativa: é uma alternativa gratuita e previsível para testar o circuito. Para conversa livre sem API paga, usa Ollama com um modelo compatível com ferramentas.
 
+## Documentação visual
+
+O projecto inclui diagramas de funcionamento e um esquema eléctrico vectorial para facilitar a montagem e a compreensão da arquitectura.
+
+- [Esquema eléctrico e lista de componentes (BOM)](docs/ESQUEMA_ELETRICO.md)
+- [Esquema eléctrico em SVG](docs/ESQUEMA_ELETRICO.svg)
+- [Fluxogramas do sistema (Mermaid)](docs/FLUXOGRAMAS.md)
+- [Arquitectura técnica](docs/ARQUITETURA.md)
+- [Configuração dos modelos de IA](docs/CONFIGURACAO_MODELOS.md)
+
+![Esquema de ligações da LuzIA](docs/ESQUEMA_ELETRICO.svg)
+
 ## Conteúdo do repositório
 
 - `luzia_server.py`: API FastAPI, seleção de modos e execução das ferramentas.
@@ -21,7 +33,7 @@ A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servido
 - `firmware/luzia_esp32/secrets.h.example`: exemplo de configuração Wi-Fi.
 - `requirements.txt`: dependências base.
 - `requirements-claude.txt`: SDK opcional da Claude.
-- `tests/`: testes automáticos do parser Free.
+- `tests/`: testes automáticos do parser Free.\n- `.github/workflows/tests.yml`: execução automática dos testes e verificação de sintaxe em GitHub Actions.
 
 ## Material necessário
 
@@ -171,7 +183,7 @@ O SDK Anthropic não é importado nem necessário nos modos Free e Ollama; só �
 
 A chave API fica no ficheiro local `.env`: nunca a coloques no firmware, HTML ou GitHub. O `.gitignore` exclui `.env`, ficheiros de ambiente e `secrets.h`.
 
-## Testes
+## Testes e integração contínua
 
 Com o ambiente virtual ativo:
 
@@ -180,7 +192,7 @@ python -m unittest discover -s tests -v
 python -m compileall -q luzia_server.py luzia_core.py run.py
 ```
 
-Os testes cobrem o parser do modo gratuito. Para validar o circuito real, liga o ESP32 à mesma rede e executa os testes HTTP indicados acima.
+Os testes automáticos actuais cobrem o parser do modo gratuito. O GitHub Actions executa os testes unitários e verifica a sintaxe Python em cada push para a branch principal ou de melhoria e em cada pull request para `main`. Para validar o circuito real, liga o ESP32 à mesma rede e executa os testes HTTP indicados acima.
 
 ## Diagnóstico
 
