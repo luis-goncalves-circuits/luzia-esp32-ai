@@ -38,15 +38,18 @@ flowchart TD
     F --> G[Iniciar servidor na porta 80]
     G --> H{{Ciclo loop}}
     H --> I[Processar pedidos HTTP]
-    I --> J{Wi-Fi ligado?}
-    J -->|Sim| K{Ligação já anunciada?}
-    K -->|Não| L[Mostrar endereço IP]
-    K -->|Sim| H
-    L --> H
-    J -->|Não| M{Passaram 10 segundos<br/>desde a última tentativa?}
-    M -->|Não| H
-    M -->|Sim| N[Solicitar WiFi.reconnect]
+    I --> J{Buzzer activo e prazo terminou?}
+    J -->|Sim| K[Desligar buzzer]
+    J -->|Não / ainda a tocar| L{Wi-Fi ligado?}
+    K --> L
+    L -->|Sim| M{Ligação já anunciada?}
+    M -->|Não| N[Mostrar endereço IP]
+    M -->|Sim| H
     N --> H
+    L -->|Não| O{Passaram 10 segundos desde a última tentativa?}
+    O -->|Não| H
+    O -->|Sim| P[Solicitar WiFi.reconnect]
+    P --> H
 ```
 
 ## 3. Recepção e processamento de uma mensagem
@@ -54,20 +57,24 @@ flowchart TD
 ```mermaid
 flowchart TD
     A([Utilizador envia mensagem]) --> B[Interface envia POST /api/chat]
-    B --> C[Validar mensagem e histórico]
-    C --> D{Validação correcta?}
-    D -->|Não| E[Responder com erro HTTP 400]
-    D -->|Sim| F{Modo activo}
-    F -->|free| G[Interpretar comando local]
-    F -->|ollama| H[Enviar mensagens e ferramentas ao Ollama]
-    F -->|claude| I[Enviar mensagens e ferramentas à Anthropic]
-    G --> J[Obter resposta e acções]
-    H --> J
-    I --> J
-    J --> K[Devolver reply, actions e mode]
-    K --> L[Interface apresenta resposta]
-    L --> M[Actualizar estado do dispositivo]
-    M --> N([Fim])
+    B --> C{Token configurado?}
+    C -->|Sim| D{Token válido?}
+    D -->|Não| E[Responder HTTP 401]
+    D -->|Sim| F[Validar mensagem e histórico]
+    C -->|Não| F
+    F --> G{Validação correcta?}
+    G -->|Não| H[Responder HTTP 422]
+    G -->|Sim| I{Modo activo}
+    I -->|free| J[Interpretar comando local]
+    I -->|ollama| K[Enviar mensagens e ferramentas ao Ollama]
+    I -->|claude| L[Enviar mensagens e ferramentas à Anthropic]
+    J --> M[Obter resposta e acções]
+    K --> M
+    L --> M
+    M --> N[Devolver reply, actions e mode]
+    N --> O[Interface apresenta resposta]
+    O --> P[Actualizar estado do dispositivo]
+    P --> Q([Fim])
 ```
 
 ## 4. Modo Free — interpretação de comandos
@@ -131,21 +138,26 @@ sequenceDiagram
     participant TOOL as Esp32Client
     participant ESP as ESP32
 
-    UI->>API: POST /api/chat
-    API->>TOOL: Executar ferramenta seleccionada
-    TOOL->>ESP: POST /led ou POST /beep<br/>GET /status
-    ESP->>ESP: Aplicar PWM / buzzer<br/>ou ler estado
-    ESP-->>TOOL: JSON com ok e dados
-    alt Resposta válida com ok=true
-        TOOL-->>API: Resultado confirmado
-        API-->>UI: reply e actions
-        UI->>API: GET /api/status
-        API->>ESP: GET /status
-        ESP-->>API: Estado actual do LED
-        API-->>UI: connected=true e device
-    else Erro HTTP, resposta inválida ou sem ok=true
-        TOOL-->>API: Resultado de falha
-        API-->>UI: Não foi possível confirmar a acção
+    UI->>API: POST /api/chat + X-LuzIA-Token
+    API->>API: Validar token se configurado
+    alt Token inválido
+        API-->>UI: HTTP 401
+    else Acesso autorizado
+        API->>TOOL: Executar ferramenta seleccionada
+        TOOL->>ESP: POST /led ou POST /beep / GET /status
+        ESP->>ESP: Aplicar PWM, temporizar buzzer ou ler estado
+        ESP-->>TOOL: JSON com ok e dados
+        alt Resposta válida com ok=true
+            TOOL-->>API: Resultado confirmado
+            API-->>UI: reply e actions
+            UI->>API: GET /api/status
+            API->>ESP: GET /status
+            ESP-->>API: Estado actual do LED
+            API-->>UI: connected=true e device
+        else Erro HTTP, resposta inválida ou sem ok=true
+            TOOL-->>API: Resultado de falha
+            API-->>UI: Não foi possível confirmar a acção
+        end
     end
 ```
 
