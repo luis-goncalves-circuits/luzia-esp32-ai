@@ -1,6 +1,6 @@
 import unittest
 
-from pydantic import ValidationError
+from fastapi.testclient import TestClient\nfrom pydantic import ValidationError
 
 from luzia_server import (
     ChatMessage,
@@ -47,6 +47,21 @@ class ToolArgumentValidationTests(unittest.TestCase):
     def test_access_token_rejects_missing_or_wrong_value(self):
         self.assertFalse(is_access_token_valid(None, "local-secret"))
         self.assertFalse(is_access_token_valid("wrong", "local-secret"))
+
+
+    def test_control_endpoint_rejects_missing_token_when_configured(self):
+        from unittest.mock import patch
+
+        with patch("luzia_server.LUZIA_ACCESS_TOKEN", "test-secret"):
+            client = TestClient(app)
+            denied = client.post("/api/mode", json={"mode": "free"})
+            allowed = client.post(
+                "/api/mode",
+                json={"mode": "free"},
+                headers={"X-LuzIA-Token": "test-secret"},
+            )
+        self.assertEqual(denied.status_code, 401)
+        self.assertEqual(allowed.status_code, 200)
 
     def test_chat_history_is_limited_to_twenty_messages(self):
         history = [ChatMessage(role="user", content=f"Mensagem {index}") for index in range(21)]
