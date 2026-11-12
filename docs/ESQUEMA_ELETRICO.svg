@@ -35,7 +35,7 @@
  <rect x="710" y="318" width="145" height="44" rx="8" class="res"/><text x="782" y="347" text-anchor="middle" class="small" style="font-weight:bold">220–330 Ω</text>
  <rect x="710" y="423" width="145" height="44" rx="8" class="res"/><text x="782" y="452" text-anchor="middle" class="small" style="font-weight:bold">220–330 Ω</text>
  <rect x="710" y="528" width="145" height="44" rx="8" class="res"/><text x="782" y="557" text-anchor="middle" class="small" style="font-weight:bold">220–330 Ω</text>
- <path d="M855 340 H1055" class="wire wireR"/><path d="M855 445 H1055" class="wire wireG"/><path d="M855 550 H1055" class="wire wireB"/>
+ <path d="M855 340 H1101" class="wire wireR"/><path d="M855 445 H1101" class="wire wireG"/><path d="M855 550 H1101" class="wire wireB"/>
  <text x="885" y="325" class="small" style="fill:#b63838;font-weight:bold">R</text><text x="885" y="430" class="small" style="fill:#16834c;font-weight:bold">G</text><text x="885" y="535" class="small" style="fill:#2866c4;font-weight:bold">B</text>
 </g>
 <!-- LED RGB de quatro terminais: R, G, B e cátodo comum -->
@@ -54,14 +54,24 @@
 <text x="1375" y="465" text-anchor="middle" class="small" style="font-weight:bold">Cátodo</text>
 <text x="1375" y="490" text-anchor="middle" class="small" style="font-weight:bold">→ GND</text>
 <rect x="650" y="720" width="850" height="190" rx="22" class="panel"/>
-<text x="700" y="770" class="label">Buzzer activo (opcional)</text>
-<path d="M485 273 H560 V835 H850" class="wire wireY"/>
-<rect x="850" y="795" width="240" height="80" rx="14" class="component"/>
-<circle cx="970" cy="835" r="27" fill="#dce4ef" stroke="#64758d" stroke-width="3"/>
-<path d="M1005 815 Q1045 835 1005 855" stroke="#64758d" stroke-width="4" fill="none"/>
-<text x="970" y="895" text-anchor="middle" class="small">Buzzer activo</text>
-<text x="1125" y="825" class="small">+ → GPIO 14</text>
-<text x="1125" y="860" class="small">− → GND</text>
+<text x="700" y="770" class="label">Buzzer activo (opcional) — comutação por transistor</text>
+<path d="M485 273 H560 V835 H700" class="wire wireY"/>
+<rect x="700" y="812" width="125" height="46" rx="8" class="res"/>
+<text x="762" y="842" text-anchor="middle" class="small" style="font-weight:bold">1 kΩ</text>
+<path d="M825 835 H925" class="wire wireY"/>
+<circle cx="980" cy="835" r="43" fill="#e9eef7" stroke="#64758d" stroke-width="4"/>
+<path d="M945 835 H963 M963 808 L1000 780 M963 862 L1000 890" stroke="#52627a" stroke-width="5" fill="none"/>
+<path d="M1000 780 V790 H1135" class="gnd"/>
+<rect x="1135" y="780" width="150" height="72" rx="12" class="component"/>
+<circle cx="1190" cy="816" r="22" fill="#26364d" stroke="#64758d" stroke-width="3"/>
+<path d="M1215 800 Q1240 816 1215 832" stroke="#64758d" stroke-width="4" fill="none"/>
+<path d="M1285 816 H1350 V780" class="wire wireY"/>
+<text x="1350" y="765" text-anchor="middle" class="small" style="font-weight:bold">+V</text>
+<path d="M1000 890 V900 H1080" class="gnd"/>
+<path d="M1080 900 v-12 m-20 12 h40 m-32 10 h24 m-16 10 h8" class="gnd"/>
+<text x="980" y="895" text-anchor="middle" class="small">NPN</text>
+<text x="1140" y="880" class="small">Buzzer activo</text>
+<text x="700" y="890" class="small">GPIO 14 → resistência → base NPN</text>
 
 <!-- Ground note -->
 <rect x="95" y="875" width="470" height="65" rx="12" class="note"/>
