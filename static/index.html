@@ -77,6 +77,8 @@
   async function refreshStatus() {
     try {
       const response = await apiFetch('/api/status');
+      if (response.status === 401 && authRequired) return;
+      if (!response.ok) throw new Error('Não foi possível consultar o estado.');
       const data = await response.json();
       const device = data.device || {};
       const online = Boolean(data.connected);
