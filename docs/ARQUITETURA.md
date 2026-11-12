@@ -3,6 +3,7 @@
 ```text
 Browser (chat web)
        |
+       | X-LuzIA-Token (se configurado)
        | POST /api/chat
        v
 Python / FastAPI (máquina local)
@@ -21,7 +22,7 @@ HTTP na rede Wi-Fi local
 ESP32 (servidor HTTP)
        |
        +-- PWM RGB: GPIO 25, 26, 27
-       +-- buzzer ativo: GPIO 14
+       +-- controlo do buzzer via NPN: GPIO 14
 ```
 
 ## Princípio de fiabilidade
