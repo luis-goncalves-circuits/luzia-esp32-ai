@@ -200,7 +200,7 @@ python -m unittest discover -s tests -v
 python -m compileall -q luzia_server.py luzia_core.py run.py
 ```
 
-Os testes automáticos actuais cobrem o parser do modo gratuito. O GitHub Actions executa os testes unitários e verifica a sintaxe Python em cada push para a branch principal ou de melhoria e em cada pull request para `main`. Para validar o circuito real, liga o ESP32 à mesma rede e executa os testes HTTP indicados acima.
+Os testes automáticos cobrem o parser, a validação dos argumentos das ferramentas, o limite do histórico e a validação do token. O GitHub Actions executa os testes Python, verifica a sintaxe e tenta compilar o firmware com Arduino-ESP32 3.0.7 em cada push para a branch principal ou de melhoria e em cada pull request para `main`. A compilação automática não substitui o teste físico do circuito: liga o ESP32 à mesma rede e executa os testes HTTP indicados acima.
 
 ## Diagnóstico
 
