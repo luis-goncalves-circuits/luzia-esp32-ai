@@ -131,6 +131,10 @@
     finally { send.disabled = false; send.textContent = 'Enviar'; input.focus(); }
   });
   document.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { input.value = button.dataset.prompt; form.requestSubmit(); }));
+  document.getElementById('access-token').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') document.getElementById('auth-submit').click();
+  });
+
   document.getElementById('auth-submit').addEventListener('click', async () => {
     const inputToken = document.getElementById('access-token');
     const error = document.getElementById('auth-error');
