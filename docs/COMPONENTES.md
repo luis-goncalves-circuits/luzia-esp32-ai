@@ -18,4 +18,4 @@ A imagem é uma ilustração vectorial de referência, não uma fotografia nem a
 
 A designação ESP32 DevKit abrange várias placas com diferenças de disposição dos pinos. O LED RGB também pode ter sequências físicas diferentes de terminais. Confirma sempre as marcações da placa e a folha de dados do LED antes de ligares o circuito.
 
-Para o buzzer, verifica tensão nominal e corrente. Se o componente exigir mais corrente do que um GPIO pode fornecer em segurança, utiliza um transistor NPN ou MOSFET lógico como etapa de comutação, com resistência de base/porta e alimentação adequada. Liga todas as massas em comum. Para cargas indutivas, avalia a necessidade de díodo de roda livre conforme a construção do buzzer.
+Para o buzzer, verifica tensão nominal e corrente. A montagem de referência usa um transistor NPN como etapa de comutação, com resistência de base e alimentação adequada. Não ligues o buzzer directamente ao GPIO. Liga todas as massas em comum. Para cargas indutivas, avalia a necessidade de díodo de roda livre conforme a construção do buzzer.
