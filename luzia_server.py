@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 import os
@@ -9,7 +10,7 @@ from typing import Any
 
 import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -28,6 +29,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
+LUZIA_ACCESS_TOKEN = os.getenv("LUZIA_ACCESS_TOKEN", "").strip()
 MAX_TOOL_ROUNDS = 5
 
 PERSONA = """És a LuzIA, uma assistente doméstica em português europeu, divertida e levemente sarcástica.
@@ -164,6 +166,19 @@ esp32 = Esp32Client()
 ACTIVE_MODE = AI_MODE if AI_MODE in {"free", "ollama", "claude"} else "free"
 
 
+def is_access_token_valid(supplied: str | None, configured: str) -> bool:
+    if not configured:
+        return True
+    if not supplied:
+        return False
+    return hmac.compare_digest(supplied.encode("utf-8"), configured.encode("utf-8"))
+
+
+def require_access_token(x_luzia_token: str | None = Header(default=None)) -> None:
+    if not is_access_token_valid(x_luzia_token, LUZIA_ACCESS_TOKEN):
+        raise HTTPException(status_code=401, detail="Token de acesso inválido ou em falta.")
+
+
 def validate_history(history: list[ChatMessage]) -> list[dict[str, str]]:
     return [{"role": item.role, "content": item.content} for item in history[-20:]]
 
@@ -297,11 +312,11 @@ async def health() -> dict[str, Any]:
 
 @app.get("/api/config")
 async def config() -> dict[str, Any]:
-    return {"mode": ACTIVE_MODE, "modes": ["free", "ollama", "claude"], "ollama_model": OLLAMA_MODEL if ACTIVE_MODE == "ollama" else None}
+    return {"mode": ACTIVE_MODE, "modes": ["free", "ollama", "claude"], "ollama_model": OLLAMA_MODEL if ACTIVE_MODE == "ollama" else None, "auth_required": bool(LUZIA_ACCESS_TOKEN)}
 
 
 @app.post("/api/mode")
-async def set_mode(request: ModeRequest) -> dict[str, Any]:
+async def set_mode(request: ModeRequest, _: None = Depends(require_access_token)) -> dict[str, Any]:
     global ACTIVE_MODE
     mode = request.mode.strip().lower()
     if mode not in {"free", "ollama", "claude"}:
@@ -311,19 +326,19 @@ async def set_mode(request: ModeRequest) -> dict[str, Any]:
 
 
 @app.get("/api/status")
-async def status() -> dict[str, Any]:
+async def status(_: None = Depends(require_access_token)) -> dict[str, Any]:
     try:
         device = await esp32.status()
         connected = True
     except Exception as exc:  # status endpoint reports diagnostics rather than failing the page
         logger.info("ESP32 ainda não acessível: %s", exc)
-        device = {"ok": False, "error": "ESP32 sem resposta", "url": ESP32_URL}
+        device = {"ok": False, "error": "ESP32 sem resposta"}
         connected = False
     return {"mode": ACTIVE_MODE, "connected": connected, "device": device}
 
 
 @app.post("/api/chat")
-async def chat(request: ChatRequest) -> dict[str, Any]:
+async def chat(request: ChatRequest, _: None = Depends(require_access_token)) -> dict[str, Any]:
     message = request.message.strip()
     if not message:
         raise HTTPException(status_code=400, detail="A mensagem não pode estar vazia.")
