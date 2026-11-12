@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>LuzIA — Assistente de luz</title>
+  <style>
+    :root{color-scheme:dark;--bg:#090d18;--panel:#111827;--panel2:#172033;--line:#26334a;--text:#eff4ff;--muted:#9caac2;--accent:#7c9cff;--good:#45d6a2;--bad:#ff7e88}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0%,#1b2850 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+    .app{max-width:1120px;margin:auto;padding:28px 20px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:13px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#8aa6ff,#6047c8);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 30px #627fff44}.brand h1{font-size:20px;letter-spacing:.2px;margin:0}.brand p{margin:1px 0 0;color:var(--muted);font-size:12px}.mode{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.mode select{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit}
+    .layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.8fr);gap:18px}.panel{background:linear-gradient(180deg,#131d30f2,#0e1626f2);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 60px #0003}.chat-panel{min-height:650px;display:flex;flex-direction:column;overflow:hidden}.panel-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.panel-head strong{font-size:14px}.status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:var(--bad)}.dot.online{background:var(--good);box-shadow:0 0 10px #45d6a2aa}.messages{padding:22px;display:flex;flex-direction:column;gap:14px;flex:1;overflow:auto;max-height:520px}.msg{max-width:86%;padding:12px 15px;border-radius:15px;white-space:pre-wrap;overflow-wrap:anywhere}.msg.bot{background:#1b2940;border:1px solid #2a3b58;align-self:flex-start;border-bottom-left-radius:5px}.msg.user{background:#536fd1;align-self:flex-end;border-bottom-right-radius:5px}.msg small{display:block;color:#c3cce0;font-size:10px;margin-top:6px;opacity:.8}.composer{padding:16px;border-top:1px solid var(--line);display:flex;gap:10px}.composer input{min-width:0;flex:1;background:#0a1221;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:14px;font:inherit;outline:none}.composer input:focus{border-color:#718eff}.send{border:0;border-radius:12px;background:#6e86ee;color:white;padding:0 20px;font-weight:700;cursor:pointer}.send:disabled{opacity:.5;cursor:wait}.side{padding:20px;display:flex;flex-direction:column;gap:20px}.side h2{font-size:14px;margin:0}.led-box{min-height:210px;border-radius:16px;background:radial-gradient(circle at 50% 42%,#25385d55,transparent 58%),#0a1221;border:1px solid var(--line);display:grid;place-items:center;position:relative}.led{width:92px;height:92px;border-radius:50%;background:#151b28;box-shadow:inset 0 0 20px #0009,0 0 0 10px #ffffff08;transition:all .25s}.led-label{position:absolute;bottom:13px;font-size:11px;color:var(--muted)}.connection{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}.connection b{color:var(--text);font-weight:500}.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick button{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:#162238;color:var(--text);cursor:pointer;font:inherit;font-size:12px}.quick button:hover{border-color:#8298ff;background:#1b2c4d}.hint{font-size:12px;color:var(--muted);margin:0}.foot{margin-top:16px;text-align:center;color:#7887a2;font-size:11px}.warning{border:1px solid #594c2e;background:#30271666;border-radius:12px;padding:12px;color:#d9c99c;font-size:11px}
+    @media(max-width:760px){.app{padding:18px 12px}.top{align-items:flex-start;flex-direction:column}.mode{width:100%;justify-content:space-between}.layout{grid-template-columns:1fr}.chat-panel{min-height:560px}.messages{max-height:420px}.side{order:-1}.led-box{min-height:150px}.led{width:68px;height:68px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="brand"><div class="logo">✦</div><div><h1>LuzIA</h1><p>Uma assistente com luz própria. Literalmente.</p></div></div>
+      <div class="mode"><label for="mode">CÉREBRO DA IA</label><select id="mode"><option value="free">Grátis — comandos locais</option><option value="ollama">Ollama — IA local</option><option value="claude">Claude — API</option></select></div>
+    </header>
+    <section class="layout">
+      <section class="panel chat-panel">
+        <div class="panel-head"><strong>Conversa com a LuzIA</strong><span class="status"><i id="dot" class="dot"></i><span id="device-status">A verificar ESP32…</span></span></div>
+        <div class="messages" id="messages" aria-live="polite"><div class="msg bot">Olá! Sou a LuzIA. Posso mudar a cor do LED, consultar o estado e fazer o buzzer apitar. Prometo tentar não abusar do botão. 😏<small>Assistente</small></div></div>
+        <form class="composer" id="form"><input id="input" autocomplete="off" maxlength="4000" placeholder="Ex.: LuzIA, acende o LED azul…" aria-label="Mensagem para a LuzIA"><button class="send" id="send" type="submit">Enviar</button></form>
+      </section>
+      <aside class="panel side">
+        <div><h2>LED físico</h2><p class="hint">Estado reportado pelo ESP32, não uma animação inventada.</p></div>
+        <div class="led-box"><div class="led" id="led"></div><div class="led-label" id="led-label">Sem ligação ao dispositivo</div></div>
+        <div class="connection"><span>Ligação ESP32</span><b id="connection-text">Desconhecida</b></div>
+        <div><h2>Experimenta dizer</h2><div class="quick" style="margin-top:10px"><button data-prompt="Acende o LED azul">🔵 Azul</button><button data-prompt="Acende o LED vermelho">🔴 Vermelho</button><button data-prompt="Acende o LED verde a 40%">🟢 Verde 40%</button><button data-prompt="Apaga o LED">🌑 Apagar</button><button data-prompt="Qual é o estado do LED?">📡 Estado</button><button data-prompt="Faz beep durante 300 ms">🔔 Beep</button></div></div>
+        <div class="warning">O modo Free reconhece comandos específicos; não é um chatbot generativo. Ollama corre no teu computador. Claude usa a tua chave API e pode gerar custos.</div>
+      </aside>
+    </section>
+    <p class="foot">LuzIA · ESP32 + RGB + IA · Nunca confirma uma ação física sem resposta do dispositivo.</p>
+  </main>
+<script>
+  const messagesEl = document.getElementById('messages');
+  const input = document.getElementById('input');
+  const send = document.getElementById('send');
+  const form = document.getElementById('form');
+  const modeSelect = document.getElementById('mode');
+  const history = [];
+
+  function addMessage(text, who, meta='') {
+    const node = document.createElement('div');
+    node.className = `msg ${who}`;
+    node.textContent = text;
+    if (meta) { const small = document.createElement('small'); small.textContent = meta; node.appendChild(small); }
+    messagesEl.appendChild(node);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+  async function refreshStatus() {
+    try {
+      const response = await fetch('/api/status');
+      const data = await response.json();
+      const device = data.device || {};
+      const online = Boolean(data.connected);
+      document.getElementById('dot').classList.toggle('online', online);
+      document.getElementById('device-status').textContent = online ? 'ESP32 ligado' : 'ESP32 sem resposta';
+      document.getElementById('connection-text').textContent = online ? 'Online' : 'Offline';
+      if (online) {
+        const on = Boolean(device.on);
+        const rgb = [device.r || 0, device.g || 0, device.b || 0];
+        const led = document.getElementById('led');
+        led.style.background = on ? `rgb(${rgb.join(',')})` : '#151b28';
+        led.style.boxShadow = on ? `0 0 25px rgba(${rgb.join(',')},.8), 0 0 70px rgba(${rgb.join(',')},.35)` : 'inset 0 0 20px #0009,0 0 0 10px #ffffff08';
+        document.getElementById('led-label').textContent = on ? `Ligado · RGB ${rgb.join(', ')}` : 'Desligado';
+      } else {
+        document.getElementById('led').style.background = '#151b28';
+        document.getElementById('led-label').textContent = 'Sem ligação ao dispositivo';
+      }
+    } catch (_) {
+      document.getElementById('device-status').textContent = 'Servidor indisponível';
+      document.getElementById('connection-text').textContent = 'Sem ligação';
+      document.getElementById('dot').classList.remove('online');
+    }
+  }
+  async function changeMode(mode) {
+    try {
+      const response = await fetch('/api/mode', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'Não foi possível mudar o modo.');
+      addMessage(`Modo alterado para ${mode}. A escolha mantém-se apenas até reiniciares o servidor.`, 'bot', 'Sistema');
+    } catch (error) { addMessage(error.message, 'bot', 'Erro'); }
+  }
+  modeSelect.addEventListener('change', () => changeMode(modeSelect.value));
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+    addMessage(message, 'user');
+    input.value = '';
+    send.disabled = true;
+    send.textContent = '…';
+    try {
+      const response = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'O servidor encontrou um erro.');
+      addMessage(data.reply || 'Sem resposta.', 'bot', `LuzIA · ${data.mode}`);
+      history.push({role:'user',content:message},{role:'assistant',content:data.reply || ''});
+      while (history.length > 20) history.shift();
+      await refreshStatus();
+    } catch (error) { addMessage(error.message, 'bot', 'Erro'); }
+    finally { send.disabled = false; send.textContent = 'Enviar'; input.focus(); }
+  });
+  document.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { input.value = button.dataset.prompt; form.requestSubmit(); }));
+  async function init() {
+    try { const response = await fetch('/api/config'); const data = await response.json(); modeSelect.value = data.mode || 'free'; } catch (_) {}
+    await refreshStatus();
+  }
+  init();
+  setInterval(refreshStatus, 5000);
+</script>
+</body>
+</html>
