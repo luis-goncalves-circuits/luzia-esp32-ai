@@ -45,8 +45,9 @@ O projecto inclui diagramas de funcionamento e um esquema eléctrico vectorial p
 1. ESP32 DevKit (ESP32-WROOM-32 ou equivalente).
 2. LED RGB de 4 pinos, preferencialmente **cátodo comum**.
 3. Três resistências de 220–330 Ω, uma por canal R/G/B.
-4. Buzzer **ativo** de baixa tensão (opcional; confirma os requisitos elétricos do componente).
-5. Breadboard, cabos jumper e computador Windows/macOS/Linux.
+4. Buzzer **ativo** (opcional), com tensão nominal adequada.
+5. Transístor NPN e resistência de base (cerca de 1 kΩ como referência inicial) para comutar o buzzer sem sobrecarregar o GPIO.
+6. Breadboard, cabos jumper e computador Windows/macOS/Linux.
 
 **Atenção:** o firmware fornecido é para LED RGB de 4 pinos, não para WS2812B/NeoPixel.
 
