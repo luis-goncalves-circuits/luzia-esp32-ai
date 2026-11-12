@@ -26,7 +26,7 @@ ESP32_TIMEOUT = float(os.getenv("ESP32_TIMEOUT", "3.5"))
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5")
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
 MAX_TOOL_ROUNDS = 5
 
 PERSONA = """És a LuzIA, uma assistente doméstica em português europeu, divertida e levemente sarcástica.
@@ -266,7 +266,7 @@ async def set_mode(request: ModeRequest) -> dict[str, str]:
     if mode not in {"free", "ollama", "claude"}:
         raise HTTPException(status_code=400, detail="Modo inválido. Escolhe free, ollama ou claude.")
     ACTIVE_MODE = mode
-    return {"ok": "true", "mode": ACTIVE_MODE}
+    return {"ok": True, "mode": ACTIVE_MODE}
 
 
 @app.get("/api/status")
