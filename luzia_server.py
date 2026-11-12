@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -90,11 +91,40 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
-    history: list[ChatMessage] = Field(default_factory=list)
+    history: list[ChatMessage] = Field(default_factory=list, max_length=20)
 
 
 class ModeRequest(BaseModel):
     mode: str
+
+
+def bounded_int(value: Any, *, default: int, minimum: int, maximum: int) -> int:
+    """Validate and clamp an integer received from an untrusted tool call."""
+    if value is None:
+        value = default
+    if isinstance(value, bool):
+        raise ValueError("Valor booleano não é um inteiro válido.")
+    if isinstance(value, int):
+        number = value
+    elif isinstance(value, str) and re.fullmatch(r"[+-]?\\d+", value.strip()):
+        number = int(value.strip())
+    else:
+        raise ValueError("Era esperado um número inteiro.")
+    return max(minimum, min(maximum, number))
+
+
+def parse_boolean(value: Any, *, default: bool = True) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "on"}:
+            return True
+        if normalized in {"false", "0", "no", "off"}:
+            return False
+    raise ValueError("Era esperado um valor booleano verdadeiro/falso.")
 
 
 class Esp32Client:
@@ -107,14 +137,16 @@ class Esp32Client:
             response = await client.request(method, f"{self.base_url}{path}", params=params)
             response.raise_for_status()
             data = response.json()
-            if not isinstance(data, dict) or not data.get("ok", False):
-                raise RuntimeError(f"Resposta inesperada do ESP32: {data}")
+            if not isinstance(data, dict) or data.get("ok") is not True:
+                raise RuntimeError("O ESP32 devolveu uma resposta inválida ou não confirmou a operação.")
             return data
 
     async def set_led(self, args: dict[str, Any]) -> dict[str, Any]:
-        on = bool(args.get("on", True))
-        rgb = [max(0, min(255, int(args.get(k, 0)))) for k in ("r", "g", "b")]
-        brightness = max(1, min(100, int(args.get("brightness", 100))))
+        if not isinstance(args, dict):
+            raise ValueError("Os argumentos de set_led têm de ser um objecto.")
+        on = parse_boolean(args.get("on", True))
+        rgb = [bounded_int(args.get(k, 0), default=0, minimum=0, maximum=255) for k in ("r", "g", "b")]
+        brightness = bounded_int(args.get("brightness", 100), default=100, minimum=1, maximum=100)
         params = {"r": rgb[0], "g": rgb[1], "b": rgb[2], "brightness": brightness, "on": str(on).lower()}
         return await self._request("POST", "/led", params)
 
@@ -122,7 +154,9 @@ class Esp32Client:
         return await self._request("GET", "/status")
 
     async def beep(self, args: dict[str, Any]) -> dict[str, Any]:
-        duration = max(50, min(2000, int(args.get("duration_ms", 250))))
+        if not isinstance(args, dict):
+            raise ValueError("Os argumentos de beep têm de ser um objecto.")
+        duration = bounded_int(args.get("duration_ms", 250), default=250, minimum=50, maximum=2000)
         return await self._request("POST", "/beep", {"duration_ms": duration})
 
 
@@ -224,7 +258,12 @@ async def chat_ollama(message: str, history: list[dict[str, str]]) -> tuple[str,
             except httpx.HTTPError as exc:
                 logger.exception("Ollama indisponível")
                 raise HTTPException(status_code=502, detail=f"Não consegui contactar o Ollama em {OLLAMA_URL}. Confirma se está instalado, iniciado e se o modelo {OLLAMA_MODEL} existe.") from exc
-            payload = response.json()
+            try:
+                payload = response.json()
+            except ValueError as exc:
+                raise HTTPException(status_code=502, detail="O Ollama devolveu uma resposta que não é JSON válido.") from exc
+            if not isinstance(payload, dict) or not isinstance(payload.get("message", {}), dict):
+                raise HTTPException(status_code=502, detail="O Ollama devolveu uma estrutura de resposta inesperada.")
             assistant_message = payload.get("message", {})
             tool_calls = assistant_message.get("tool_calls") or []
             if not tool_calls:
