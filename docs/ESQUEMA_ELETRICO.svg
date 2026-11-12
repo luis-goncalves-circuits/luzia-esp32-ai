@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">Esquema de ligações da LuzIA com ESP32, LED RGB e buzzer</title>
+<desc id="desc">Diagrama de ligações para LED RGB de cátodo comum com resistências individuais nos GPIO 25, 26 e 27, e buzzer activo opcional no GPIO 14.</desc>
+<defs>
+  <style>
+    .bg{fill:#f5f7fb}.panel{fill:#fff;stroke:#d8dfeb;stroke-width:3}.board{fill:#172b4d;stroke:#0d1b32;stroke-width:5}.boardtxt{fill:#fff;font:700 30px Arial}.label{fill:#15243b;font:700 25px Arial}.small{fill:#52627a;font:20px Arial}.pin{fill:#e9eef7;stroke:#9eacc2;stroke-width:2}.wireR{stroke:#d64a4a}.wireG{stroke:#269b63}.wireB{stroke:#3678d8}.wireY{stroke:#d49a22}.wire{fill:none;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.gnd{stroke:#25344b;stroke-width:6;fill:none}.res{fill:#f0d9a5;stroke:#9d7832;stroke-width:3}.component{fill:#eef3fa;stroke:#64758d;stroke-width:3}.note{fill:#fff8e6;stroke:#e2c56e;stroke-width:2}.number{fill:#fff;font:700 19px Arial}
+  </style>
+</defs>
+<rect class="bg" width="1600" height="1000"/>
+<text x="70" y="75" class="label" style="font-size:38px">LuzIA — esquema eléctrico de referência</text>
+<text x="70" y="115" class="small">ESP32 DevKit · LED RGB de 4 pinos (cátodo comum) · buzzer activo opcional</text>
+
+<!-- ESP32 board -->
+<rect x="95" y="205" width="390" height="620" rx="28" class="board"/>
+<rect x="205" y="245" width="170" height="115" rx="12" fill="#29476e" stroke="#6e8ab0" stroke-width="3"/>
+<text x="290" y="290" text-anchor="middle" class="boardtxt" style="font-size:26px">ESP32</text>
+<text x="290" y="325" text-anchor="middle" class="number">DEVKIT</text>
+<text x="290" y="395" text-anchor="middle" class="number">GPIO PWM / I/O</text>
+<g>
+ <rect x="440" y="450" width="45" height="46" rx="5" class="pin"/><text x="420" y="480" text-anchor="end" class="number">GPIO 25</text>
+ <rect x="440" y="555" width="45" height="46" rx="5" class="pin"/><text x="420" y="585" text-anchor="end" class="number">GPIO 26</text>
+ <rect x="440" y="660" width="45" height="46" rx="5" class="pin"/><text x="420" y="690" text-anchor="end" class="number">GPIO 27</text>
+ <rect x="95" y="755" width="45" height="46" rx="5" class="pin"/><text x="155" y="785" class="number">GND</text>
+ <rect x="440" y="250" width="45" height="46" rx="5" class="pin"/><text x="420" y="280" text-anchor="end" class="number">GPIO 14</text>
+</g>
+
+<!-- LED RGB section -->
+<rect x="650" y="175" width="850" height="500" rx="22" class="panel"/>
+<text x="700" y="225" class="label">LED RGB — uma resistência por canal</text>
+<text x="700" y="260" class="small">Usar resistências de 220–330 Ω em série com cada cor.</text>
+<path d="M485 473 H590 V340 H710" class="wire wireR"/>
+<path d="M485 578 H610 V445 H710" class="wire wireG"/>
+<path d="M485 683 H630 V550 H710" class="wire wireB"/>
+<g>
+ <rect x="710" y="318" width="145" height="44" rx="8" class="res"/><text x="782" y="347" text-anchor="middle" class="small" style="font-weight:bold">220–330 Ω</text>
+ <rect x="710" y="423" width="145" height="44" rx="8" class="res"/><text x="782" y="452" text-anchor="middle" class="small" style="font-weight:bold">220–330 Ω</text>
+ <rect x="710" y="528" width="145" height="44" rx="8" class="res"/><text x="782" y="557" text-anchor="middle" class="small" style="font-weight:bold">220–330 Ω</text>
+ <path d="M855 340 H1055" class="wire wireR"/><path d="M855 445 H1055" class="wire wireG"/><path d="M855 550 H1055" class="wire wireB"/>
+ <text x="885" y="325" class="small" style="fill:#b63838;font-weight:bold">R</text><text x="885" y="430" class="small" style="fill:#16834c;font-weight:bold">G</text><text x="885" y="535" class="small" style="fill:#2866c4;font-weight:bold">B</text>
+</g>
+<!-- RGB LED symbol -->
+<circle cx="1160" cy="445" r="93" fill="#eef2f8" stroke="#536781" stroke-width="5"/>
+<path d="M1110 495 Q1160 515 1210 495 L1200 550 Q1160 575 1120 550 Z" fill="#c8d4e5" stroke="#536781" stroke-width="3"/>
+<path d="M1125 495 V605 M1160 505 V605 M1195 495 V605" stroke="#536781" stroke-width="5"/>
+<path d="M1125 605 H1195" class="gnd"/>
+<path d="M1160 605 V630 H1390" class="gnd"/>
+<path d="M1390 630 v-20 m-22 20 h44 m-35 12 h26 m-18 12 h10" class="gnd"/>
+<text x="1160" y="450" text-anchor="middle" class="label" style="font-size:24px">RGB</text>
+<text x="1295" y="410" class="small">Ânodo/cátodo</text>
+<text x="1295" y="438" class="small">comum do LED</text>
+<text x="1295" y="470" class="small" style="font-weight:bold">Cátodo comum</text>
+<text x="1295" y="500" class="small">→ GND</text>
+
+<!-- buzzer -->
+<rect x="650" y="720" width="850" height="190" rx="22" class="panel"/>
+<text x="700" y="770" class="label">Buzzer activo (opcional)</text>
+<path d="M485 273 H560 V835 H850" class="wire wireY"/>
+<rect x="850" y="795" width="240" height="80" rx="14" class="component"/>
+<circle cx="970" cy="835" r="27" fill="#dce4ef" stroke="#64758d" stroke-width="3"/>
+<path d="M1005 815 Q1045 835 1005 855" stroke="#64758d" stroke-width="4" fill="none"/>
+<text x="970" y="895" text-anchor="middle" class="small">Buzzer activo</text>
+<text x="1125" y="825" class="small">+ → GPIO 14</text>
+<text x="1125" y="860" class="small">− → GND</text>
+
+<!-- Ground note -->
+<rect x="95" y="875" width="470" height="65" rx="12" class="note"/>
+<text x="120" y="915" class="small" style="font-weight:bold">Todos os GND devem estar em comum.</text>
+<text x="650" y="965" class="small">Não ligar o LED sem resistências. Confirmar a pinagem física do LED RGB e a corrente admissível do buzzer.</text>
+</svg>
