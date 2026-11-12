@@ -15,7 +15,9 @@ WebServer server(80);
 int ledR = 0, ledG = 0, ledB = 0;
 bool ledOn = false;
 unsigned long lastWiFiAttempt = 0;
-bool wifiWasConnected = false;\nbool beepActive = false;\nunsigned long beepStopAt = 0;
+bool wifiWasConnected = false;
+bool beepActive = false;
+unsigned long beepStopAt = 0;
 
 void writeChannel(int pin, int value) {
   const int output = COMMON_ANODE ? 255 - value : value;
