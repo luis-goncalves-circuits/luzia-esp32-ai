@@ -1,5 +1,14 @@
 # LuzIA — assistente de IA para ESP32 RGB
 
+[![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0832--7425-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0832-7425)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-ESP32-red)](firmware/luzia_esp32/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![CI](https://github.com/luis-goncalves-circuits/luzia-esp32-ai/actions/workflows/tests.yml/badge.svg)](https://github.com/luis-goncalves-circuits/luzia-esp32-ai/actions/workflows/tests.yml)
+
+**Autor:** Luís Filipe Gonçalves ([ORCID 0009-0001-0832-7425](https://orcid.org/0009-0001-0832-7425))
+
+
 A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servidor Python. Escreve «LuzIA, acende o LED azul»; o modelo pode decidir chamar `set_led()`, o servidor envia o comando ao ESP32 e só depois de receber a confirmação do dispositivo a LuzIA diz que o LED foi ligado.
 
 ## Três modos de funcionamento
@@ -218,6 +227,10 @@ Os testes automáticos cobrem o parser, a validação dos argumentos das ferrame
 ## Segurança
 
 Este é um projeto doméstico de laboratório. O firmware ESP32 aceita pedidos HTTP na rede local e não implementa autenticação nem TLS. O servidor Python pode proteger os endpoints de controlo com `LUZIA_ACCESS_TOKEN`: define um token longo e aleatório no `.env` antes de usar `HOST=0.0.0.0`. A interface pede o token e mantém-no apenas na sessão actual do navegador. Mantém `HOST=127.0.0.1` por defeito; não abras portas no router nem exponhas directamente o servidor ou o ESP32 à Internet. O token protege a API Python, mas não substitui uma rede privada de confiança nem adiciona encriptação ao tráfego.
+
+## Citação académica
+
+Se utilizares este projecto num relatório, artigo ou trabalho académico, consulta o ficheiro [`CITATION.bib`](./CITATION.bib), que contém a referência bibliográfica em formato BibTeX. Ainda não foi atribuído um DOI; não utilizes um DOI até existir um depósito ou uma publicação formal.
 
 ## Licença
 
