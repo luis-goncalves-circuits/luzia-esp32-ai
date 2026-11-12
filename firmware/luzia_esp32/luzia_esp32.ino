@@ -2,20 +2,25 @@
 #include <WebServer.h>
 #include "secrets.h"
 
-// LED RGB de 4 pinos (cátodo comum), com uma resistência de 220-330 ohm
-// em cada canal. Para ânodo comum, muda COMMON_ANODE para true.
+// LED RGB discreto de 4 pinos; cada canal exige uma resistência limitadora.
 static const int PIN_RED = 25;
 static const int PIN_GREEN = 26;
 static const int PIN_BLUE = 27;
-static const int PIN_BUZZER = 14; // buzzer ativo, opcional
+static const int PIN_BUZZER = 14; // controlo da base NPN via resistência; buzzer opcional
 static const bool COMMON_ANODE = false;
+
+static const unsigned long WIFI_RETRY_INTERVAL_MS = 10000;
 
 WebServer server(80);
 int ledR = 0, ledG = 0, ledB = 0;
 bool ledOn = false;
+unsigned long lastWiFiAttempt = 0;
+bool wifiWasConnected = false;
+bool beepActive = false;
+unsigned long beepStopAt = 0;
 
 void writeChannel(int pin, int value) {
-  int output = COMMON_ANODE ? 255 - value : value;
+  const int output = COMMON_ANODE ? 255 - value : value;
   analogWrite(pin, output);
 }
 
@@ -31,34 +36,51 @@ void applyLed(int r, int g, int b, int brightness, bool on) {
   writeChannel(PIN_BLUE, ledB);
 }
 
-void addCorsHeaders() {
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+void sendJsonError(int statusCode, const char* message) {
+  String json = "{\"ok\":false,\"error\":\"" + String(message) + "\"}";
+  server.send(statusCode, "application/json", json);
 }
 
-void handleOptions() {
-  addCorsHeaders();
-  server.send(204);
+bool isIntegerText(const String& value) {
+  if (value.length() == 0) return false;
+  int index = (value[0] == '-' || value[0] == '+') ? 1 : 0;
+  if (index == value.length()) return false;
+  for (; index < value.length(); index++) {
+    if (!isDigit(value[index])) return false;
+  }
+  return true;
 }
 
 void handleLed() {
   if (!server.hasArg("r") || !server.hasArg("g") || !server.hasArg("b")) {
-    addCorsHeaders();
-    server.send(400, "application/json", "{\"ok\":false,\"error\":\"r, g e b obrigatorios\"}");
+    sendJsonError(400, "r, g e b obrigatorios");
     return;
   }
-  int r = constrain(server.arg("r").toInt(), 0, 255);
-  int g = constrain(server.arg("g").toInt(), 0, 255);
-  int b = constrain(server.arg("b").toInt(), 0, 255);
-  int brightness = server.hasArg("brightness") ? server.arg("brightness").toInt() : 100;
-  bool on = !server.hasArg("on") || server.arg("on") != "false";
+  if (!isIntegerText(server.arg("r")) || !isIntegerText(server.arg("g")) ||
+      !isIntegerText(server.arg("b")) ||
+      (server.hasArg("brightness") && !isIntegerText(server.arg("brightness")))) {
+    sendJsonError(400, "r, g, b e brightness devem ser inteiros");
+    return;
+  }
+  const int r = constrain(server.arg("r").toInt(), 0, 255);
+  const int g = constrain(server.arg("g").toInt(), 0, 255);
+  const int b = constrain(server.arg("b").toInt(), 0, 255);
+  const int brightness = server.hasArg("brightness") ? server.arg("brightness").toInt() : 100;
+  bool on = true;
+  if (server.hasArg("on")) {
+    const String onValue = server.arg("on");
+    if (onValue == "false") on = false;
+    else if (onValue != "true") {
+      sendJsonError(400, "on deve ser true ou false");
+      return;
+    }
+  }
+
   applyLed(r, g, b, brightness, on);
 
   String json = "{\"ok\":true,\"r\":" + String(ledR) +
                 ",\"g\":" + String(ledG) + ",\"b\":" + String(ledB) +
                 ",\"on\":" + String(ledOn ? "true" : "false") + "}";
-  addCorsHeaders();
   server.send(200, "application/json", json);
 }
 
@@ -66,18 +88,31 @@ void handleStatus() {
   String json = "{\"ok\":true,\"r\":" + String(ledR) +
                 ",\"g\":" + String(ledG) + ",\"b\":" + String(ledB) +
                 ",\"on\":" + String(ledOn ? "true" : "false") + "}";
-  addCorsHeaders();
   server.send(200, "application/json", json);
 }
 
 void handleBeep() {
-  int duration = server.hasArg("duration_ms") ? server.arg("duration_ms").toInt() : 250;
-  duration = constrain(duration, 50, 2000);
+  if (server.hasArg("duration_ms") && !isIntegerText(server.arg("duration_ms"))) {
+    sendJsonError(400, "duration_ms deve ser inteiro");
+    return;
+  }
+  const int requestedDuration = server.hasArg("duration_ms") ? server.arg("duration_ms").toInt() : 250;
+  const int duration = constrain(requestedDuration, 50, 2000);
   digitalWrite(PIN_BUZZER, HIGH);
-  delay(duration);
-  digitalWrite(PIN_BUZZER, LOW);
-  addCorsHeaders();
+  beepActive = true;
+  beepStopAt = millis() + static_cast<unsigned long>(duration);
   server.send(200, "application/json", "{\"ok\":true,\"duration_ms\":" + String(duration) + "}");
+}
+
+void startHttpServer() {
+  server.on("/led", HTTP_POST, handleLed);
+  server.on("/status", HTTP_GET, handleStatus);
+  server.on("/beep", HTTP_POST, handleBeep);
+  server.onNotFound([]() {
+    sendJsonError(404, "not found");
+  });
+  server.begin();
+  Serial.println("Servidor HTTP LuzIA iniciado na porta 80.");
 }
 
 void setup() {
@@ -91,33 +126,42 @@ void setup() {
   applyLed(0, 0, 0, 100, false);
 
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("A ligar ao Wi-Fi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println();
-  Serial.print("ESP32 ligado. IP: ");
-  Serial.println(WiFi.localIP());
+  lastWiFiAttempt = millis();
+  Serial.println("A iniciar ligação Wi-Fi...");
 
-  server.on("/led", HTTP_POST, handleLed);
-  server.on("/status", HTTP_GET, handleStatus);
-  server.on("/beep", HTTP_POST, handleBeep);
-  server.on("/led", HTTP_OPTIONS, handleOptions);
-  server.on("/status", HTTP_OPTIONS, handleOptions);
-  server.on("/beep", HTTP_OPTIONS, handleOptions);
-  server.onNotFound([]() {
-    addCorsHeaders();
-    server.send(404, "application/json", "{\"ok\":false,\"error\":\"not found\"}");
-  });
-  server.begin();
-  Serial.println("Servidor HTTP LuzIA iniciado na porta 80.");
+  // O servidor HTTP é inicializado mesmo sem Wi-Fi. A ligação é gerida no loop,
+  // evitando bloquear indefinidamente o arranque quando a rede está indisponível.
+  startHttpServer();
 }
 
 void loop() {
   server.handleClient();
-  if (WiFi.status() != WL_CONNECTED) {
+
+  if (beepActive && static_cast<long>(millis() - beepStopAt) >= 0) {
+    digitalWrite(PIN_BUZZER, LOW);
+    beepActive = false;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    if (!wifiWasConnected) {
+      Serial.print("ESP32 ligado. IP: ");
+      Serial.println(WiFi.localIP());
+      wifiWasConnected = true;
+    }
+    return;
+  }
+
+  if (wifiWasConnected) {
+    Serial.println("Ligação Wi-Fi perdida.");
+    wifiWasConnected = false;
+  }
+
+  const unsigned long now = millis();
+  if (now - lastWiFiAttempt >= WIFI_RETRY_INTERVAL_MS) {
+    lastWiFiAttempt = now;
+    Serial.println("A tentar recuperar ligação Wi-Fi...");
     WiFi.reconnect();
   }
 }

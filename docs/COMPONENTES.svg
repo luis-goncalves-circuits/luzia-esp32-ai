@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="940" viewBox="0 0 1500 940" role="img" aria-labelledby="title desc">
+<title id="title">Componentes do projecto LuzIA</title>
+<desc id="desc">Ilustração vectorial de uma placa ESP32 DevKit, LED RGB de quatro terminais, três resistências, buzzer activo, breadboard e cabos jumper.</desc>
+<defs>
+ <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101b31"/><stop offset="1" stop-color="#172d4a"/></linearGradient>
+ <linearGradient id="pcb" x2="1" y2="1"><stop stop-color="#1f765d"/><stop offset="1" stop-color="#174638"/></linearGradient>
+ <style>
+ .title{font:700 42px Arial;fill:#f3f7ff}.sub{font:22px Arial;fill:#b6c6dd}.card{fill:#f8fafc;stroke:#d4deeb;stroke-width:3}.label{font:700 25px Arial;fill:#14243b}.caption{font:19px Arial;fill:#52647c}.metal{fill:#b8c4d2;stroke:#65758a;stroke-width:3}.hole{fill:#23334b}.pin{fill:#e2e8f0;stroke:#94a3b8;stroke-width:2}
+ </style>
+</defs>
+<rect width="1500" height="940" rx="26" fill="url(#bg)"/>
+<text x="70" y="85" class="title">LuzIA — componentes do circuito</text>
+<text x="70" y="125" class="sub">Ilustração vectorial de referência · confirmar sempre o modelo e o pinout dos componentes reais</text>
+
+<!-- ESP32 card -->
+<rect x="55" y="175" width="680" height="330" rx="22" class="card"/>
+<text x="90" y="225" class="label">1. ESP32 DevKit</text>
+<rect x="250" y="250" width="280" height="210" rx="18" fill="url(#pcb)" stroke="#0f3d31" stroke-width="6"/>
+<rect x="320" y="280" width="140" height="90" rx="9" fill="#bac6d2" stroke="#64748b" stroke-width="4"/>
+<rect x="345" y="295" width="90" height="60" rx="5" fill="#334155"/>
+<path d="M345 370 V388 H435 V370" fill="none" stroke="#9fb3c8" stroke-width="4"/>
+<rect x="345" y="395" width="90" height="48" rx="5" fill="#cbd5e1" stroke="#64748b" stroke-width="3"/>
+<rect x="360" y="404" width="60" height="30" rx="4" fill="#64748b"/>
+<g fill="#d8e1eb"><rect x="270" y="240" width="16" height="30"/><rect x="300" y="240" width="16" height="30"/><rect x="330" y="240" width="16" height="30"/><rect x="360" y="240" width="16" height="30"/><rect x="390" y="240" width="16" height="30"/><rect x="420" y="240" width="16" height="30"/><rect x="450" y="240" width="16" height="30"/><rect x="480" y="240" width="16" height="30"/></g>
+<g fill="#d8e1eb"><rect x="270" y="450" width="16" height="30"/><rect x="300" y="450" width="16" height="30"/><rect x="330" y="450" width="16" height="30"/><rect x="360" y="450" width="16" height="30"/><rect x="390" y="450" width="16" height="30"/><rect x="420" y="450" width="16" height="30"/><rect x="450" y="450" width="16" height="30"/><rect x="480" y="450" width="16" height="30"/></g>
+<text x="555" y="300" class="caption">GPIO 25 — R</text><text x="555" y="335" class="caption">GPIO 26 — G</text><text x="555" y="370" class="caption">GPIO 27 — B</text><text x="555" y="405" class="caption">GPIO 14 — buzzer</text><text x="555" y="440" class="caption">3V3 / GND</text>
+
+<!-- RGB LED card -->
+<rect x="765" y="175" width="680" height="330" rx="22" class="card"/>
+<text x="800" y="225" class="label">2. LED RGB de 4 terminais</text>
+<path d="M1010 290 Q1010 255 1060 255 H1140 Q1190 255 1190 290 L1170 390 Q1150 425 1100 425 Q1050 425 1030 390 Z" fill="#c5e7f5" fill-opacity=".65" stroke="#7894ae" stroke-width="5"/>
+<path d="M1050 410 V470 M1085 415 V470 M1120 415 V470 M1155 410 V470" stroke="#94a3b8" stroke-width="6"/>
+<path d="M1050 470 H1155" stroke="#64748b" stroke-width="4"/>
+<path d="M1100 290 V385" stroke="#fff" stroke-opacity=".8" stroke-width="8"/>
+<text x="1230" y="295" class="caption">R — vermelho</text><text x="1230" y="330" class="caption">G — verde</text><text x="1230" y="365" class="caption">B — azul</text><text x="1230" y="400" class="caption">Comum — cátodo</text><text x="1230" y="435" class="caption">→ GND</text>
+
+<!-- Resistor card -->
+<rect x="55" y="535" width="430" height="330" rx="22" class="card"/>
+<text x="90" y="585" class="label">3. Resistências</text>
+<g transform="translate(120 655)">
+ <path d="M0 35 H45 M235 35 H280" stroke="#94a3b8" stroke-width="7"/>
+ <rect x="45" y="10" width="190" height="50" rx="20" fill="#d9bd85" stroke="#9b7c45" stroke-width="4"/>
+ <path d="M82 11 V59 M112 11 V59 M160 11 V59 M190 11 V59" stroke="#8b4e25" stroke-width="9"/>
+</g>
+<text x="270" y="755" text-anchor="middle" class="caption">220–330 Ω</text>
+<text x="270" y="790" text-anchor="middle" class="caption">Uma resistência por canal RGB</text>
+<text x="270" y="825" text-anchor="middle" class="caption">R · G · B</text>
+
+<!-- buzzer card -->
+<rect x="515" y="535" width="430" height="330" rx="22" class="card"/>
+<text x="550" y="585" class="label">4. Buzzer + etapa NPN</text>
+<rect x="650" y="640" width="160" height="130" rx="22" fill="#26364d" stroke="#0f172a" stroke-width="5"/>
+<ellipse cx="730" cy="690" rx="42" ry="34" fill="#111827" stroke="#64748b" stroke-width="4"/>
+<circle cx="730" cy="690" r="12" fill="#94a3b8"/>
+<path d="M690 770 V800 M770 770 V800" stroke="#b8c4d2" stroke-width="7"/>
+<text x="730" y="835" text-anchor="middle" class="caption">Activo · polaridade + / −</text>
+<rect x="825" y="655" width="70" height="34" rx="8" fill="#d9bd85" stroke="#9b7c45" stroke-width="3"/>
+<path d="M895 672 H910" stroke="#94a3b8" stroke-width="5"/>
+<circle cx="920" cy="720" r="28" fill="#e2e8f0" stroke="#64748b" stroke-width="3"/>
+<path d="M897 720 H909 M909 704 L936 686 M909 736 L936 754" stroke="#52627a" stroke-width="4" fill="none"/>
+<text x="860" y="715" text-anchor="middle" class="caption">1 kΩ</text>
+<text x="920" y="775" text-anchor="middle" class="caption">NPN</text>
+
+<!-- breadboard and wires -->
+<rect x="975" y="535" width="470" height="330" rx="22" class="card"/>
+<text x="1010" y="585" class="label">5. Montagem e cablagem</text>
+<rect x="1040" y="635" width="330" height="155" rx="15" fill="#f0f4f8" stroke="#a9b6c8" stroke-width="4"/>
+<path d="M1060 660 H1350 M1060 765 H1350" stroke="#e58a8a" stroke-width="5"/>
+<path d="M1060 675 H1350 M1060 750 H1350" stroke="#7aa4d8" stroke-width="5"/>
+<g fill="#8392a7">
+ <circle cx="1080" cy="700" r="5"/><circle cx="1110" cy="700" r="5"/><circle cx="1140" cy="700" r="5"/><circle cx="1170" cy="700" r="5"/><circle cx="1200" cy="700" r="5"/><circle cx="1230" cy="700" r="5"/><circle cx="1260" cy="700" r="5"/><circle cx="1290" cy="700" r="5"/><circle cx="1320" cy="700" r="5"/>
+ <circle cx="1080" cy="725" r="5"/><circle cx="1110" cy="725" r="5"/><circle cx="1140" cy="725" r="5"/><circle cx="1170" cy="725" r="5"/><circle cx="1200" cy="725" r="5"/><circle cx="1230" cy="725" r="5"/><circle cx="1260" cy="725" r="5"/><circle cx="1290" cy="725" r="5"/><circle cx="1320" cy="725" r="5"/>
+</g>
+<path d="M1080 830 Q1100 805 1120 830 T1160 830" fill="none" stroke="#d64a4a" stroke-width="7"/>
+<path d="M1180 830 Q1200 805 1220 830 T1260 830" fill="none" stroke="#269b63" stroke-width="7"/>
+<path d="M1280 830 Q1300 805 1320 830 T1360 830" fill="none" stroke="#3678d8" stroke-width="7"/>
+<text x="1210" y="610" text-anchor="middle" class="caption">Breadboard + jumpers</text>
+</svg>

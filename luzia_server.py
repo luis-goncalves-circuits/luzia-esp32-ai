@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Any
 
 import httpx
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -27,6 +29,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
+LUZIA_ACCESS_TOKEN = os.getenv("LUZIA_ACCESS_TOKEN", "").strip()
 MAX_TOOL_ROUNDS = 5
 
 PERSONA = """És a LuzIA, uma assistente doméstica em português europeu, divertida e levemente sarcástica.
@@ -90,11 +93,40 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
-    history: list[ChatMessage] = Field(default_factory=list)
+    history: list[ChatMessage] = Field(default_factory=list, max_length=20)
 
 
 class ModeRequest(BaseModel):
     mode: str
+
+
+def bounded_int(value: Any, *, default: int, minimum: int, maximum: int) -> int:
+    """Validate and clamp an integer received from an untrusted tool call."""
+    if value is None:
+        value = default
+    if isinstance(value, bool):
+        raise ValueError("Valor booleano não é um inteiro válido.")
+    if isinstance(value, int):
+        number = value
+    elif isinstance(value, str) and re.fullmatch(r"[+-]?\d+", value.strip()):
+        number = int(value.strip())
+    else:
+        raise ValueError("Era esperado um número inteiro.")
+    return max(minimum, min(maximum, number))
+
+
+def parse_boolean(value: Any, *, default: bool = True) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "on"}:
+            return True
+        if normalized in {"false", "0", "no", "off"}:
+            return False
+    raise ValueError("Era esperado um valor booleano verdadeiro/falso.")
 
 
 class Esp32Client:
@@ -107,14 +139,18 @@ class Esp32Client:
             response = await client.request(method, f"{self.base_url}{path}", params=params)
             response.raise_for_status()
             data = response.json()
-            if not isinstance(data, dict) or not data.get("ok", False):
-                raise RuntimeError(f"Resposta inesperada do ESP32: {data}")
+            if not isinstance(data, dict) or data.get("ok") is not True:
+                raise RuntimeError("O ESP32 devolveu uma resposta inválida ou não confirmou a operação.")
             return data
 
     async def set_led(self, args: dict[str, Any]) -> dict[str, Any]:
-        on = bool(args.get("on", True))
-        rgb = [max(0, min(255, int(args.get(k, 0)))) for k in ("r", "g", "b")]
-        brightness = max(1, min(100, int(args.get("brightness", 100))))
+        if not isinstance(args, dict):
+            raise ValueError("Os argumentos de set_led têm de ser um objecto.")
+        if any(key not in args for key in ("r", "g", "b")):
+            raise ValueError("set_led exige os três canais r, g e b.")
+        on = parse_boolean(args.get("on", True))
+        rgb = [bounded_int(args.get(k, 0), default=0, minimum=0, maximum=255) for k in ("r", "g", "b")]
+        brightness = bounded_int(args.get("brightness", 100), default=100, minimum=1, maximum=100)
         params = {"r": rgb[0], "g": rgb[1], "b": rgb[2], "brightness": brightness, "on": str(on).lower()}
         return await self._request("POST", "/led", params)
 
@@ -122,7 +158,9 @@ class Esp32Client:
         return await self._request("GET", "/status")
 
     async def beep(self, args: dict[str, Any]) -> dict[str, Any]:
-        duration = max(50, min(2000, int(args.get("duration_ms", 250))))
+        if not isinstance(args, dict):
+            raise ValueError("Os argumentos de beep têm de ser um objecto.")
+        duration = bounded_int(args.get("duration_ms", 250), default=250, minimum=50, maximum=2000)
         return await self._request("POST", "/beep", {"duration_ms": duration})
 
 
@@ -130,11 +168,26 @@ esp32 = Esp32Client()
 ACTIVE_MODE = AI_MODE if AI_MODE in {"free", "ollama", "claude"} else "free"
 
 
+def is_access_token_valid(supplied: str | None, configured: str) -> bool:
+    if not configured:
+        return True
+    if not supplied:
+        return False
+    return hmac.compare_digest(supplied.encode("utf-8"), configured.encode("utf-8"))
+
+
+def require_access_token(x_luzia_token: str | None = Header(default=None)) -> None:
+    if not is_access_token_valid(x_luzia_token, LUZIA_ACCESS_TOKEN):
+        raise HTTPException(status_code=401, detail="Token de acesso inválido ou em falta.")
+
+
 def validate_history(history: list[ChatMessage]) -> list[dict[str, str]]:
     return [{"role": item.role, "content": item.content} for item in history[-20:]]
 
 
 async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(arguments, dict):
+        return {"ok": False, "error": "Os argumentos da ferramenta têm de ser um objecto JSON."}
     try:
         if name == "set_led":
             return await esp32.set_led(arguments)
@@ -143,7 +196,10 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         if name == "beep":
             return await esp32.beep(arguments)
         return {"ok": False, "error": f"Ferramenta desconhecida: {name}"}
-    except (httpx.HTTPError, RuntimeError, ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:
+        logger.warning("Argumentos inválidos para %s: %s", name, exc)
+        return {"ok": False, "error": f"Argumentos inválidos para {name}: {exc}"}
+    except (httpx.HTTPError, RuntimeError) as exc:
         logger.warning("Falha ao executar %s no ESP32: %s", name, exc)
         return {
             "ok": False,
@@ -224,7 +280,12 @@ async def chat_ollama(message: str, history: list[dict[str, str]]) -> tuple[str,
             except httpx.HTTPError as exc:
                 logger.exception("Ollama indisponível")
                 raise HTTPException(status_code=502, detail=f"Não consegui contactar o Ollama em {OLLAMA_URL}. Confirma se está instalado, iniciado e se o modelo {OLLAMA_MODEL} existe.") from exc
-            payload = response.json()
+            try:
+                payload = response.json()
+            except ValueError as exc:
+                raise HTTPException(status_code=502, detail="O Ollama devolveu uma resposta que não é JSON válido.") from exc
+            if not isinstance(payload, dict) or not isinstance(payload.get("message", {}), dict):
+                raise HTTPException(status_code=502, detail="O Ollama devolveu uma estrutura de resposta inesperada.")
             assistant_message = payload.get("message", {})
             tool_calls = assistant_message.get("tool_calls") or []
             if not tool_calls:
@@ -256,11 +317,11 @@ async def health() -> dict[str, Any]:
 
 @app.get("/api/config")
 async def config() -> dict[str, Any]:
-    return {"mode": ACTIVE_MODE, "modes": ["free", "ollama", "claude"], "ollama_model": OLLAMA_MODEL if ACTIVE_MODE == "ollama" else None}
+    return {"mode": ACTIVE_MODE, "modes": ["free", "ollama", "claude"], "ollama_model": OLLAMA_MODEL if ACTIVE_MODE == "ollama" else None, "auth_required": bool(LUZIA_ACCESS_TOKEN)}
 
 
 @app.post("/api/mode")
-async def set_mode(request: ModeRequest) -> dict[str, Any]:
+async def set_mode(request: ModeRequest, _: None = Depends(require_access_token)) -> dict[str, Any]:
     global ACTIVE_MODE
     mode = request.mode.strip().lower()
     if mode not in {"free", "ollama", "claude"}:
@@ -270,19 +331,19 @@ async def set_mode(request: ModeRequest) -> dict[str, Any]:
 
 
 @app.get("/api/status")
-async def status() -> dict[str, Any]:
+async def status(_: None = Depends(require_access_token)) -> dict[str, Any]:
     try:
         device = await esp32.status()
         connected = True
     except Exception as exc:  # status endpoint reports diagnostics rather than failing the page
         logger.info("ESP32 ainda não acessível: %s", exc)
-        device = {"ok": False, "error": "ESP32 sem resposta", "url": ESP32_URL}
+        device = {"ok": False, "error": "ESP32 sem resposta"}
         connected = False
     return {"mode": ACTIVE_MODE, "connected": connected, "device": device}
 
 
 @app.post("/api/chat")
-async def chat(request: ChatRequest) -> dict[str, Any]:
+async def chat(request: ChatRequest, _: None = Depends(require_access_token)) -> dict[str, Any]:
     message = request.message.strip()
     if not message:
         raise HTTPException(status_code=400, detail="A mensagem não pode estar vazia.")

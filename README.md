@@ -1,5 +1,14 @@
 # LuzIA — assistente de IA para ESP32 RGB
 
+[![ORCID](https://img.shields.io/badge/ORCID-0009--0001--0832--7425-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0001-0832-7425)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-ESP32-red)](firmware/luzia_esp32/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![CI](https://github.com/luis-goncalves-circuits/luzia-esp32-ai/actions/workflows/tests.yml/badge.svg)](https://github.com/luis-goncalves-circuits/luzia-esp32-ai/actions/workflows/tests.yml)
+
+**Autor:** Luís Filipe Gonçalves ([ORCID 0009-0001-0832-7425](https://orcid.org/0009-0001-0832-7425))
+
+
 A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servidor Python. Escreve «LuzIA, acende o LED azul»; o modelo pode decidir chamar `set_led()`, o servidor envia o comando ao ESP32 e só depois de receber a confirmação do dispositivo a LuzIA diz que o LED foi ligado.
 
 ## Três modos de funcionamento
@@ -12,6 +21,22 @@ A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servido
 
 > O modo Free não é uma IA generativa: é uma alternativa gratuita e previsível para testar o circuito. Para conversa livre sem API paga, usa Ollama com um modelo compatível com ferramentas.
 
+## Documentação visual
+
+O projecto inclui diagramas de funcionamento e um esquema eléctrico vectorial para facilitar a montagem e a compreensão da arquitectura.
+
+- [Esquema eléctrico e lista de componentes (BOM)](docs/ESQUEMA_ELETRICO.md)
+- [Ilustração dos componentes](docs/COMPONENTES.svg)
+- [Guia dos componentes](docs/COMPONENTES.md)
+- [Esquema eléctrico em SVG](docs/ESQUEMA_ELETRICO.svg)
+- [Fluxogramas do sistema (Mermaid)](docs/FLUXOGRAMAS.md)
+- [Arquitectura técnica](docs/ARQUITETURA.md)
+- [Configuração dos modelos de IA](docs/CONFIGURACAO_MODELOS.md)
+
+![Esquema de ligações da LuzIA](docs/ESQUEMA_ELETRICO.svg)
+
+![Componentes da LuzIA](docs/COMPONENTES.svg)
+
 ## Conteúdo do repositório
 
 - `luzia_server.py`: API FastAPI, seleção de modos e execução das ferramentas.
@@ -22,14 +47,17 @@ A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servido
 - `requirements.txt`: dependências base.
 - `requirements-claude.txt`: SDK opcional da Claude.
 - `tests/`: testes automáticos do parser Free.
+- `.github/workflows/tests.yml`: execução automática dos testes e verificação de sintaxe em GitHub Actions.
 
 ## Material necessário
 
 1. ESP32 DevKit (ESP32-WROOM-32 ou equivalente).
 2. LED RGB de 4 pinos, preferencialmente **cátodo comum**.
 3. Três resistências de 220–330 Ω, uma por canal R/G/B.
-4. Buzzer **ativo** de baixa tensão (opcional; confirma os requisitos elétricos do componente).
-5. Breadboard, cabos jumper e computador Windows/macOS/Linux.
+4. Buzzer **ativo** (opcional), com tensão nominal adequada.
+5. Transístor NPN e resistência de base (cerca de 1 kΩ como referência inicial) para comutar o buzzer sem sobrecarregar o GPIO.
+6. Fonte adequada para o buzzer, se a tensão/corrente nominal do componente o exigir.
+7. Breadboard, cabos jumper e computador Windows/macOS/Linux.
 
 **Atenção:** o firmware fornecido é para LED RGB de 4 pinos, não para WS2812B/NeoPixel.
 
@@ -41,8 +69,10 @@ A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servido
 | RGB — G | GPIO 26 | Em série com resistência 220–330 Ω |
 | RGB — B | GPIO 27 | Em série com resistência 220–330 Ω |
 | RGB — terminal comum | GND | Para cátodo comum |
-| Buzzer ativo (+) | GPIO 14 | Opcional |
-| Buzzer ativo (−) | GND | — |
+| Controlo do buzzer | GPIO 14 | Base de NPN através de resistência de 1 kΩ |
+| Buzzer (+) | Fonte adequada | Conforme tensão nominal do buzzer |
+| Buzzer (−) | Colector do NPN | Comutação por transistor |
+| Emissor do NPN | GND | Massa comum com o ESP32 |
 
 Não ligues LEDs sem resistências. Confirma o pinout do teu RGB, porque a ordem física dos pinos varia. Para LED de **ânodo comum**, muda `COMMON_ANODE` para `true` no firmware e liga o terminal comum a 3V3. Não alimentes cargas acima dos limites dos GPIO.
 
@@ -171,7 +201,7 @@ O SDK Anthropic não é importado nem necessário nos modos Free e Ollama; só �
 
 A chave API fica no ficheiro local `.env`: nunca a coloques no firmware, HTML ou GitHub. O `.gitignore` exclui `.env`, ficheiros de ambiente e `secrets.h`.
 
-## Testes
+## Testes e integração contínua
 
 Com o ambiente virtual ativo:
 
@@ -180,7 +210,7 @@ python -m unittest discover -s tests -v
 python -m compileall -q luzia_server.py luzia_core.py run.py
 ```
 
-Os testes cobrem o parser do modo gratuito. Para validar o circuito real, liga o ESP32 à mesma rede e executa os testes HTTP indicados acima.
+Os testes automáticos cobrem o parser, a validação dos argumentos das ferramentas, o limite do histórico e a validação do token. O GitHub Actions executa os testes Python, verifica a sintaxe e tenta compilar o firmware com Arduino-ESP32 3.0.7 em cada push para a branch principal ou de melhoria e em cada pull request para `main`. A compilação automática não substitui o teste físico do circuito: liga o ESP32 à mesma rede e executa os testes HTTP indicados acima.
 
 ## Diagnóstico
 
@@ -196,7 +226,11 @@ Os testes cobrem o parser do modo gratuito. Para validar o circuito real, liga o
 
 ## Segurança
 
-Este é um projeto doméstico de laboratório. O servidor não tem autenticação, o firmware aceita pedidos na rede local e o tráfego HTTP não é cifrado. Mantém `HOST=127.0.0.1` por defeito; não abras portas no router nem exponhas diretamente o servidor ou ESP32 à Internet. Para acesso a partir de outro dispositivo da rede, configura `HOST=0.0.0.0` conscientemente e usa apenas uma rede privada de confiança.
+Este é um projeto doméstico de laboratório. O firmware ESP32 aceita pedidos HTTP na rede local e não implementa autenticação nem TLS. O servidor Python pode proteger os endpoints de controlo com `LUZIA_ACCESS_TOKEN`: define um token longo e aleatório no `.env` antes de usar `HOST=0.0.0.0`. A interface pede o token e mantém-no apenas na sessão actual do navegador. Mantém `HOST=127.0.0.1` por defeito; não abras portas no router nem exponhas directamente o servidor ou o ESP32 à Internet. O token protege a API Python, mas não substitui uma rede privada de confiança nem adiciona encriptação ao tráfego.
+
+## Citação académica
+
+Se utilizares este projecto num relatório, artigo ou trabalho académico, consulta o ficheiro [`CITATION.bib`](./CITATION.bib), que contém a referência bibliográfica em formato BibTeX. Ainda não foi atribuído um DOI; não utilizes um DOI até existir um depósito ou uma publicação formal.
 
 ## Licença
 

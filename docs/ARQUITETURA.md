@@ -3,6 +3,7 @@
 ```text
 Browser (chat web)
        |
+       | X-LuzIA-Token (se configurado)
        | POST /api/chat
        v
 Python / FastAPI (máquina local)
@@ -21,7 +22,7 @@ HTTP na rede Wi-Fi local
 ESP32 (servidor HTTP)
        |
        +-- PWM RGB: GPIO 25, 26, 27
-       +-- buzzer ativo: GPIO 14
+       +-- controlo do buzzer via NPN: GPIO 14
 ```
 
 ## Princípio de fiabilidade
@@ -37,6 +38,6 @@ O modelo não controla diretamente GPIO nem recebe credenciais Wi-Fi. O servidor
 ## Limites deliberados
 
 - O modo Free não tenta responder a perguntas gerais como se fosse um LLM.
-- O servidor não oferece autenticação. Mantém-no em `127.0.0.1` por defeito e não publiques a porta na Internet.
+- O servidor aceita um token opcional `LUZIA_ACCESS_TOKEN` nos endpoints de controlo. Mantém `HOST=127.0.0.1` por defeito; se o partilhares na rede, configura um token longo e aleatório.
 - O firmware exemplo é para LED RGB de 4 pinos (não WS2812/NeoPixel) e buzzer ativo.
-- Não há TLS nem autenticação entre servidor e ESP32; usa apenas numa rede doméstica de confiança.
+- O token protege apenas a API Python. A comunicação entre servidor e ESP32 continua sem TLS nem autenticação; usa apenas numa rede doméstica de confiança.

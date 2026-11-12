@@ -10,6 +10,7 @@
     *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0%,#1b2850 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
     .app{max-width:1120px;margin:auto;padding:28px 20px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.brand{display:flex;align-items:center;gap:13px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#8aa6ff,#6047c8);display:grid;place-items:center;font-size:22px;box-shadow:0 8px 30px #627fff44}.brand h1{font-size:20px;letter-spacing:.2px;margin:0}.brand p{margin:1px 0 0;color:var(--muted);font-size:12px}.mode{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.mode select{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font:inherit}
     .layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.8fr);gap:18px}.panel{background:linear-gradient(180deg,#131d30f2,#0e1626f2);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 60px #0003}.chat-panel{min-height:650px;display:flex;flex-direction:column;overflow:hidden}.panel-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.panel-head strong{font-size:14px}.status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:var(--bad)}.dot.online{background:var(--good);box-shadow:0 0 10px #45d6a2aa}.messages{padding:22px;display:flex;flex-direction:column;gap:14px;flex:1;overflow:auto;max-height:520px}.msg{max-width:86%;padding:12px 15px;border-radius:15px;white-space:pre-wrap;overflow-wrap:anywhere}.msg.bot{background:#1b2940;border:1px solid #2a3b58;align-self:flex-start;border-bottom-left-radius:5px}.msg.user{background:#536fd1;align-self:flex-end;border-bottom-right-radius:5px}.msg small{display:block;color:#c3cce0;font-size:10px;margin-top:6px;opacity:.8}.composer{padding:16px;border-top:1px solid var(--line);display:flex;gap:10px}.composer input{min-width:0;flex:1;background:#0a1221;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:14px;font:inherit;outline:none}.composer input:focus{border-color:#718eff}.send{border:0;border-radius:12px;background:#6e86ee;color:white;padding:0 20px;font-weight:700;cursor:pointer}.send:disabled{opacity:.5;cursor:wait}.side{padding:20px;display:flex;flex-direction:column;gap:20px}.side h2{font-size:14px;margin:0}.led-box{min-height:210px;border-radius:16px;background:radial-gradient(circle at 50% 42%,#25385d55,transparent 58%),#0a1221;border:1px solid var(--line);display:grid;place-items:center;position:relative}.led{width:92px;height:92px;border-radius:50%;background:#151b28;box-shadow:inset 0 0 20px #0009,0 0 0 10px #ffffff08;transition:all .25s}.led-label{position:absolute;bottom:13px;font-size:11px;color:var(--muted)}.connection{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}.connection b{color:var(--text);font-weight:500}.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick button{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:#162238;color:var(--text);cursor:pointer;font:inherit;font-size:12px}.quick button:hover{border-color:#8298ff;background:#1b2c4d}.hint{font-size:12px;color:var(--muted);margin:0}.foot{margin-top:16px;text-align:center;color:#7887a2;font-size:11px}.warning{border:1px solid #594c2e;background:#30271666;border-radius:12px;padding:12px;color:#d9c99c;font-size:11px}
+    .auth-overlay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:#050914dd;backdrop-filter:blur(8px)}.auth-overlay[hidden]{display:none}.auth-card{width:min(420px,100%);padding:26px;border:1px solid #344766;border-radius:20px;background:#111c30;box-shadow:0 25px 80px #0008}.auth-card h2{margin:0 0 8px;font-size:20px}.auth-card p{color:var(--muted);font-size:13px}.auth-card input{width:100%;padding:13px;border:1px solid var(--line);border-radius:10px;background:#0a1221;color:var(--text);font:inherit;margin:8px 0 12px}.auth-card .send{width:100%;min-height:44px}.auth-error{color:var(--bad)!important;min-height:20px}
     @media(max-width:760px){.app{padding:18px 12px}.top{align-items:flex-start;flex-direction:column}.mode{width:100%;justify-content:space-between}.layout{grid-template-columns:1fr}.chat-panel{min-height:560px}.messages{max-height:420px}.side{order:-1}.led-box{min-height:150px}.led{width:68px;height:68px}}
   </style>
 </head>
@@ -34,6 +35,15 @@
       </aside>
     </section>
     <p class="foot">LuzIA · ESP32 + RGB + IA · Nunca confirma uma ação física sem resposta do dispositivo.</p>
+    <div class="auth-overlay" id="auth-overlay" hidden>
+      <section class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <h2 id="auth-title">Acesso protegido</h2>
+        <p>Este servidor exige um token de acesso. O token fica guardado apenas durante esta sessão do navegador.</p>
+        <input id="access-token" type="password" autocomplete="current-password" placeholder="Token de acesso" aria-label="Token de acesso">
+        <button class="send" id="auth-submit" type="button">Entrar</button>
+        <p class="auth-error" id="auth-error" aria-live="polite"></p>
+      </section>
+    </div>
   </main>
 <script>
   const messagesEl = document.getElementById('messages');
@@ -42,6 +52,19 @@
   const form = document.getElementById('form');
   const modeSelect = document.getElementById('mode');
   const history = [];
+  let authRequired = false;
+  let accessToken = sessionStorage.getItem('luzia_access_token') || '';
+
+  async function apiFetch(url, options={}) {
+    const headers = new Headers(options.headers || {});
+    if (accessToken) headers.set('X-LuzIA-Token', accessToken);
+    const response = await fetch(url, {...options, headers});
+    if (response.status === 401 && authRequired) {
+      document.getElementById('auth-overlay').hidden = false;
+      document.getElementById('access-token').focus();
+    }
+    return response;
+  }
 
   function addMessage(text, who, meta='') {
     const node = document.createElement('div');
@@ -53,7 +76,9 @@
   }
   async function refreshStatus() {
     try {
-      const response = await fetch('/api/status');
+      const response = await apiFetch('/api/status');
+      if (response.status === 401 && authRequired) return;
+      if (!response.ok) throw new Error('Não foi possível consultar o estado.');
       const data = await response.json();
       const device = data.device || {};
       const online = Boolean(data.connected);
@@ -79,7 +104,7 @@
   }
   async function changeMode(mode) {
     try {
-      const response = await fetch('/api/mode', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode})});
+      const response = await apiFetch('/api/mode', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode})});
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Não foi possível mudar o modo.');
       addMessage(`Modo alterado para ${mode}. A escolha mantém-se apenas até reiniciares o servidor.`, 'bot', 'Sistema');
@@ -95,7 +120,7 @@
     send.disabled = true;
     send.textContent = '…';
     try {
-      const response = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});
+      const response = await apiFetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history})});
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'O servidor encontrou um erro.');
       addMessage(data.reply || 'Sem resposta.', 'bot', `LuzIA · ${data.mode}`);
@@ -106,8 +131,45 @@
     finally { send.disabled = false; send.textContent = 'Enviar'; input.focus(); }
   });
   document.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { input.value = button.dataset.prompt; form.requestSubmit(); }));
+  document.getElementById('access-token').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') document.getElementById('auth-submit').click();
+  });
+
+  document.getElementById('auth-submit').addEventListener('click', async () => {
+    const inputToken = document.getElementById('access-token');
+    const error = document.getElementById('auth-error');
+    accessToken = inputToken.value.trim();
+    if (!accessToken) { error.textContent = 'Introduz o token definido no ficheiro .env.'; return; }
+    try {
+      const response = await apiFetch('/api/status');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Token inválido.');
+      }
+      sessionStorage.setItem('luzia_access_token', accessToken);
+      document.getElementById('auth-overlay').hidden = true;
+      error.textContent = '';
+      await refreshStatus();
+    } catch (err) {
+      accessToken = '';
+      sessionStorage.removeItem('luzia_access_token');
+      error.textContent = err.message;
+      inputToken.focus();
+    }
+  });
+
   async function init() {
-    try { const response = await fetch('/api/config'); const data = await response.json(); modeSelect.value = data.mode || 'free'; } catch (_) {}
+    try {
+      const response = await fetch('/api/config');
+      const data = await response.json();
+      modeSelect.value = data.mode || 'free';
+      authRequired = Boolean(data.auth_required);
+      if (authRequired && !accessToken) {
+        document.getElementById('auth-overlay').hidden = false;
+        document.getElementById('access-token').focus();
+        return;
+      }
+    } catch (_) {}
     await refreshStatus();
   }
   init();
