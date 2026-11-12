@@ -58,8 +58,10 @@ O projecto inclui diagramas de funcionamento e um esquema eléctrico vectorial p
 | RGB — G | GPIO 26 | Em série com resistência 220–330 Ω |
 | RGB — B | GPIO 27 | Em série com resistência 220–330 Ω |
 | RGB — terminal comum | GND | Para cátodo comum |
-| Buzzer ativo (+) | GPIO 14 | Opcional |
-| Buzzer ativo (−) | GND | — |
+| Controlo do buzzer | GPIO 14 | Base de NPN através de resistência de 1 kΩ |
+| Buzzer (+) | Fonte adequada | Conforme tensão nominal do buzzer |
+| Buzzer (−) | Colector do NPN | Comutação por transistor |
+| Emissor do NPN | GND | Massa comum com o ESP32 |
 
 Não ligues LEDs sem resistências. Confirma o pinout do teu RGB, porque a ordem física dos pinos varia. Para LED de **ânodo comum**, muda `COMMON_ANODE` para `true` no firmware e liga o terminal comum a 3V3. Não alimentes cargas acima dos limites dos GPIO.
 
