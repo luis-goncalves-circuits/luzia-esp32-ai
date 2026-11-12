@@ -260,7 +260,7 @@ async def config() -> dict[str, Any]:
 
 
 @app.post("/api/mode")
-async def set_mode(request: ModeRequest) -> dict[str, str]:
+async def set_mode(request: ModeRequest) -> dict[str, Any]:
     global ACTIVE_MODE
     mode = request.mode.strip().lower()
     if mode not in {"free", "ollama", "claude"}:
