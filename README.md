@@ -215,7 +215,7 @@ Os testes automáticos actuais cobrem o parser do modo gratuito. O GitHub Action
 
 ## Segurança
 
-Este é um projeto doméstico de laboratório. O servidor não tem autenticação, o firmware aceita pedidos na rede local e o tráfego HTTP não é cifrado. Mantém `HOST=127.0.0.1` por defeito; não abras portas no router nem exponhas diretamente o servidor ou ESP32 à Internet. Para acesso a partir de outro dispositivo da rede, configura `HOST=0.0.0.0` conscientemente e usa apenas uma rede privada de confiança.
+Este é um projeto doméstico de laboratório. O firmware ESP32 aceita pedidos HTTP na rede local e não implementa autenticação nem TLS. O servidor Python pode proteger os endpoints de controlo com `LUZIA_ACCESS_TOKEN`: define um token longo e aleatório no `.env` antes de usar `HOST=0.0.0.0`. A interface pede o token e mantém-no apenas na sessão actual do navegador. Mantém `HOST=127.0.0.1` por defeito; não abras portas no router nem exponhas directamente o servidor ou o ESP32 à Internet. O token protege a API Python, mas não substitui uma rede privada de confiança nem adiciona encriptação ao tráfego.
 
 ## Licença
 
