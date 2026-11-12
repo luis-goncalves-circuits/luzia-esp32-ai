@@ -2,7 +2,13 @@ import unittest
 
 from pydantic import ValidationError
 
-from luzia_server import (\n    ChatMessage,\n    ChatRequest,\n    bounded_int,\n    is_access_token_valid,\n    parse_boolean,\n)
+from luzia_server import (
+    ChatMessage,
+    ChatRequest,
+    bounded_int,
+    is_access_token_valid,
+    parse_boolean,
+)
 
 
 class ToolArgumentValidationTests(unittest.TestCase):
