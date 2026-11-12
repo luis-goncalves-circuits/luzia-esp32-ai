@@ -146,6 +146,8 @@ class Esp32Client:
     async def set_led(self, args: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(args, dict):
             raise ValueError("Os argumentos de set_led têm de ser um objecto.")
+        if any(key not in args for key in ("r", "g", "b")):
+            raise ValueError("set_led exige os três canais r, g e b.")
         on = parse_boolean(args.get("on", True))
         rgb = [bounded_int(args.get(k, 0), default=0, minimum=0, maximum=255) for k in ("r", "g", "b")]
         brightness = bounded_int(args.get("brightness", 100), default=100, minimum=1, maximum=100)
@@ -194,7 +196,10 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         if name == "beep":
             return await esp32.beep(arguments)
         return {"ok": False, "error": f"Ferramenta desconhecida: {name}"}
-    except (httpx.HTTPError, RuntimeError, ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:
+        logger.warning("Argumentos inválidos para %s: %s", name, exc)
+        return {"ok": False, "error": f"Argumentos inválidos para {name}: {exc}"}
+    except (httpx.HTTPError, RuntimeError) as exc:
         logger.warning("Falha ao executar %s no ESP32: %s", name, exc)
         return {
             "ok": False,
