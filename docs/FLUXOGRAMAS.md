@@ -163,3 +163,24 @@ flowchart TD
     G --> H
     H --> D
 ```
+
+## 8. Autenticação opcional da interface
+
+```mermaid
+flowchart TD
+    A([Abrir interface]) --> B[GET /api/config]
+    B --> C{auth_required?}
+    C -->|Não| D[Carregar estado e permitir utilização]
+    C -->|Sim| E[Mostrar janela de acesso]
+    E --> F[Utilizador introduz token]
+    F --> G[GET /api/status com X-LuzIA-Token]
+    G --> H{Token válido?}
+    H -->|Não| I[Mostrar erro e pedir novo token]
+    I --> F
+    H -->|Sim| J[Guardar token em sessionStorage]
+    J --> K[Permitir chat e controlo]
+    D --> L([Interface pronta])
+    K --> L
+```
+
+O token é opcional e protege os endpoints de controlo do servidor Python. Não autentica directamente o ESP32 nem cifra o tráfego HTTP.
