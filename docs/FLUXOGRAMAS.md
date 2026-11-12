@@ -33,18 +33,20 @@ flowchart TD
     A([Início / reset]) --> B[Inicializar Serial e GPIO]
     B --> C[Configurar PWM e apagar LED]
     C --> D[Iniciar Wi-Fi em modo estação]
-    D --> E{Ligado ao Wi-Fi?}
-    E -->|Não| F[Aguardar 500 ms]
-    F --> E
-    E -->|Sim| G[Mostrar endereço IP]
-    G --> H[Registar rotas HTTP]
-    H --> I[Iniciar servidor na porta 80]
-    I --> J{{Ciclo loop}}
-    J --> K[server.handleClient]
-    K --> L{Wi-Fi desligado?}
-    L -->|Sim| M[WiFi.reconnect]
-    L -->|Não| J
-    M --> J
+    D --> E[Activar auto-reconexão]
+    E --> F[Registar rotas HTTP]
+    F --> G[Iniciar servidor na porta 80]
+    G --> H{{Ciclo loop}}
+    H --> I[Processar pedidos HTTP]
+    I --> J{Wi-Fi ligado?}
+    J -->|Sim| K{Ligação já anunciada?}
+    K -->|Não| L[Mostrar endereço IP]
+    K -->|Sim| H
+    L --> H
+    J -->|Não| M{Passaram 10 segundos<br/>desde a última tentativa?}
+    M -->|Não| H
+    M -->|Sim| N[Solicitar WiFi.reconnect]
+    N --> H
 ```
 
 ## 3. Recepção e processamento de uma mensagem
