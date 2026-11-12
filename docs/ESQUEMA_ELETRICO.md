@@ -13,7 +13,10 @@ O diagrama corresponde ao firmware actual e à configuração documentada no pro
 | Canal azul | GPIO 27 | GPIO → resistência 220–330 Ω → terminal B do LED |
 | Comum do LED | GND | Cátodo comum → GND |
 | Buzzer (controlo) | GPIO 14 | Base de transistor NPN através de resistência de 1 kΩ; não alimentar o buzzer directamente pelo GPIO |
-| Buzzer negativo | GND | Massa comum |
+| Buzzer positivo | Fonte adequada | Tensão nominal indicada no datasheet |
+| Buzzer negativo | Colector do NPN | Comutação pelo transístor |
+| Emissor do NPN | GND | Massa comum com o ESP32 |
+| Massa da fonte externa | GND do ESP32 | Ligar as massas em comum |
 
 ## Lista de material (BOM)
 
@@ -25,6 +28,7 @@ O diagrama corresponde ao firmware actual e à configuração documentada no pro
 | 1 | Buzzer | Activo, tensão nominal conforme datasheet, opcional |
 | 1 | Transístor NPN | Ex.: BC547 ou 2N2222, dimensionado para a corrente do buzzer |
 | 1 | Resistência de base | Cerca de 1 kΩ como ponto de partida; confirmar corrente de base e ganho |
+| 1 | Fonte para buzzer | Apenas se necessária para a tensão/corrente nominal do componente |
 | 1 | Breadboard | Compatível com a placa |
 | Vários | Cabos jumper | Macho-macho conforme a montagem |
 | 1 | Cabo USB | Dados e alimentação da placa |
