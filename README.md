@@ -33,7 +33,8 @@ O projecto inclui diagramas de funcionamento e um esquema eléctrico vectorial p
 - `firmware/luzia_esp32/secrets.h.example`: exemplo de configuração Wi-Fi.
 - `requirements.txt`: dependências base.
 - `requirements-claude.txt`: SDK opcional da Claude.
-- `tests/`: testes automáticos do parser Free.\n- `.github/workflows/tests.yml`: execução automática dos testes e verificação de sintaxe em GitHub Actions.
+- `tests/`: testes automáticos do parser Free.
+- `.github/workflows/tests.yml`: execução automática dos testes e verificação de sintaxe em GitHub Actions.
 
 ## Material necessário
 
