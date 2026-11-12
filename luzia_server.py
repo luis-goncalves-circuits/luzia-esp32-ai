@@ -106,7 +106,7 @@ def bounded_int(value: Any, *, default: int, minimum: int, maximum: int) -> int:
         raise ValueError("Valor booleano não é um inteiro válido.")
     if isinstance(value, int):
         number = value
-    elif isinstance(value, str) and re.fullmatch(r"[+-]?\\d+", value.strip()):
+    elif isinstance(value, str) and re.fullmatch(r"[+-]?\d+", value.strip()):
         number = int(value.strip())
     else:
         raise ValueError("Era esperado um número inteiro.")
@@ -169,6 +169,8 @@ def validate_history(history: list[ChatMessage]) -> list[dict[str, str]]:
 
 
 async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(arguments, dict):
+        return {"ok": False, "error": "Os argumentos da ferramenta têm de ser um objecto JSON."}
     try:
         if name == "set_led":
             return await esp32.set_led(arguments)
