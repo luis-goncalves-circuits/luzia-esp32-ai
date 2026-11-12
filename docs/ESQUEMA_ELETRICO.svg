@@ -38,20 +38,21 @@
  <path d="M855 340 H1055" class="wire wireR"/><path d="M855 445 H1055" class="wire wireG"/><path d="M855 550 H1055" class="wire wireB"/>
  <text x="885" y="325" class="small" style="fill:#b63838;font-weight:bold">R</text><text x="885" y="430" class="small" style="fill:#16834c;font-weight:bold">G</text><text x="885" y="535" class="small" style="fill:#2866c4;font-weight:bold">B</text>
 </g>
-<!-- RGB LED symbol -->
-<circle cx="1160" cy="445" r="93" fill="#eef2f8" stroke="#536781" stroke-width="5"/>
-<path d="M1110 495 Q1160 515 1210 495 L1200 550 Q1160 575 1120 550 Z" fill="#c8d4e5" stroke="#536781" stroke-width="3"/>
-<path d="M1125 495 V605 M1160 505 V605 M1195 495 V605" stroke="#536781" stroke-width="5"/>
-<path d="M1125 605 H1195" class="gnd"/>
-<path d="M1160 605 V630 H1390" class="gnd"/>
-<path d="M1390 630 v-20 m-22 20 h44 m-35 12 h26 m-18 12 h10" class="gnd"/>
-<text x="1160" y="450" text-anchor="middle" class="label" style="font-size:24px">RGB</text>
-<text x="1295" y="410" class="small">Ânodo/cátodo</text>
-<text x="1295" y="438" class="small">comum do LED</text>
-<text x="1295" y="470" class="small" style="font-weight:bold">Cátodo comum</text>
-<text x="1295" y="500" class="small">→ GND</text>
-
-<!-- buzzer -->
+<!-- LED RGB de quatro terminais: R, G, B e cátodo comum -->
+<rect x="1055" y="295" width="300" height="300" rx="22" class="component"/>
+<text x="1205" y="330" text-anchor="middle" class="label" style="font-size:23px">LED RGB</text>
+<circle cx="1120" cy="390" r="19" fill="#d64a4a" stroke="#963333" stroke-width="3"/>
+<circle cx="1120" cy="455" r="19" fill="#269b63" stroke="#176a42" stroke-width="3"/>
+<circle cx="1120" cy="520" r="19" fill="#3678d8" stroke="#22549b" stroke-width="3"/>
+<text x="1160" y="398" class="small">R — vermelho</text>
+<text x="1160" y="463" class="small">G — verde</text>
+<text x="1160" y="528" class="small">B — azul</text>
+<path d="M1355 445 H1400 V620" class="gnd"/>
+<path d="M1400 620 v-20 m-22 20 h44 m-35 12 h26 m-18 12 h10" class="gnd"/>
+<text x="1375" y="395" text-anchor="middle" class="small">Terminal</text>
+<text x="1375" y="420" text-anchor="middle" class="small">comum</text>
+<text x="1375" y="465" text-anchor="middle" class="small" style="font-weight:bold">Cátodo</text>
+<text x="1375" y="490" text-anchor="middle" class="small" style="font-weight:bold">→ GND</text>
 <rect x="650" y="720" width="850" height="190" rx="22" class="panel"/>
 <text x="700" y="770" class="label">Buzzer activo (opcional)</text>
 <path d="M485 273 H560 V835 H850" class="wire wireY"/>
