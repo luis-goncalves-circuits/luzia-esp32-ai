@@ -61,7 +61,7 @@
 <path d="M825 835 H925" class="wire wireY"/>
 <circle cx="980" cy="835" r="43" fill="#e9eef7" stroke="#64758d" stroke-width="4"/>
 <path d="M945 835 H963 M963 808 L1000 780 M963 862 L1000 890" stroke="#52627a" stroke-width="5" fill="none"/>
-<path d="M1000 780 V816 H1135" class="gnd"/>
+<path d="M1000 780 V816 H1135" class="wire wireY"/>
 <rect x="1135" y="780" width="150" height="72" rx="12" class="component"/>
 <circle cx="1190" cy="816" r="22" fill="#26364d" stroke="#64758d" stroke-width="3"/>
 <path d="M1215 800 Q1240 816 1215 832" stroke="#64758d" stroke-width="4" fill="none"/>
@@ -76,5 +76,5 @@
 <!-- Ground note -->
 <rect x="95" y="875" width="470" height="65" rx="12" class="note"/>
 <text x="120" y="915" class="small" style="font-weight:bold">Todos os GND devem estar em comum.</text>
-<text x="650" y="965" class="small">Não ligar o LED sem resistências. Confirmar a pinagem física do LED RGB e a corrente admissível do buzzer.</text>
+<text x="650" y="965" class="small">Não ligar o LED sem resistências. Não alimentar o buzzer directamente pelo GPIO. Confirmar pinagem e datasheets.</text>
 </svg>
