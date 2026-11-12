@@ -9,7 +9,9 @@ A imagem é uma ilustração vectorial de referência, não uma fotografia nem a
 | ESP32 DevKit | 1 | ESP32-WROOM-32 ou equivalente; confirmar pinout da placa |
 | LED RGB de 4 terminais | 1 | Cátodo comum na configuração padrão |
 | Resistências | 3 | 220–330 Ω, uma por canal RGB |
-| Buzzer activo | 1 | Opcional; usar transistor NPN como etapa de comutação |\n| Transístor NPN | 1 | Dimensionado para a corrente do buzzer |\n| Resistência de base | 1 | Valor calculado; 1 kΩ como referência inicial |
+| Buzzer activo | 1 | Opcional; usar transistor NPN como etapa de comutação |
+| Transístor NPN | 1 | Dimensionado para a corrente do buzzer |
+| Resistência de base | 1 | Valor calculado; 1 kΩ como referência inicial |
 | Breadboard | 1 | Para montagem de protótipo |
 | Cabos jumper | Vários | Para sinais, alimentação e massa |
 | Cabo USB | 1 | Programação e alimentação da placa |
