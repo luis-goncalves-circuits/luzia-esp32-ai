@@ -1,6 +1,7 @@
 import unittest
 
-from fastapi.testclient import TestClient\nfrom pydantic import ValidationError
+from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from luzia_server import (
     ChatMessage,
@@ -8,6 +9,7 @@ from luzia_server import (
     bounded_int,
     is_access_token_valid,
     parse_boolean,
+    app,
 )
 
 
