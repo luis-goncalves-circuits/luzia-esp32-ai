@@ -16,13 +16,17 @@ A LuzIA junta um ESP32, um LED RGB, um buzzer opcional, um chat web e um servido
 
 O projecto inclui diagramas de funcionamento e um esquema eléctrico vectorial para facilitar a montagem e a compreensão da arquitectura.
 
-- [Esquema eléctrico e lista de componentes (BOM)](docs/ESQUEMA_ELETRICO.md)\n- [Ilustração dos componentes](docs/COMPONENTES.svg)\n- [Guia dos componentes](docs/COMPONENTES.md)
+- [Esquema eléctrico e lista de componentes (BOM)](docs/ESQUEMA_ELETRICO.md)
+- [Ilustração dos componentes](docs/COMPONENTES.svg)
+- [Guia dos componentes](docs/COMPONENTES.md)
 - [Esquema eléctrico em SVG](docs/ESQUEMA_ELETRICO.svg)
 - [Fluxogramas do sistema (Mermaid)](docs/FLUXOGRAMAS.md)
 - [Arquitectura técnica](docs/ARQUITETURA.md)
 - [Configuração dos modelos de IA](docs/CONFIGURACAO_MODELOS.md)
 
-![Esquema de ligações da LuzIA](docs/ESQUEMA_ELETRICO.svg)\n\n![Componentes da LuzIA](docs/COMPONENTES.svg)
+![Esquema de ligações da LuzIA](docs/ESQUEMA_ELETRICO.svg)
+
+![Componentes da LuzIA](docs/COMPONENTES.svg)
 
 ## Conteúdo do repositório
 
