@@ -15,6 +15,7 @@ WebServer server(80);
 int ledR = 0, ledG = 0, ledB = 0;
 bool ledOn = false;
 unsigned long lastWiFiAttempt = 0;
+bool wifiWasConnected = false;
 
 void writeChannel(int pin, int value) {
   const int output = COMMON_ANODE ? 255 - value : value;
@@ -110,19 +111,17 @@ void loop() {
   server.handleClient();
 
   if (WiFi.status() == WL_CONNECTED) {
-    static bool wasConnected = false;
-    if (!wasConnected) {
+    if (!wifiWasConnected) {
       Serial.print("ESP32 ligado. IP: ");
       Serial.println(WiFi.localIP());
-      wasConnected = true;
+      wifiWasConnected = true;
     }
     return;
   }
 
-  static bool wasConnected = false;
-  if (wasConnected) {
+  if (wifiWasConnected) {
     Serial.println("Ligação Wi-Fi perdida.");
-    wasConnected = false;
+    wifiWasConnected = false;
   }
 
   const unsigned long now = millis();
