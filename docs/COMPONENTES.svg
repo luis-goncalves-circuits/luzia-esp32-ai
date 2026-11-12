@@ -53,7 +53,13 @@
 <ellipse cx="730" cy="690" rx="42" ry="34" fill="#111827" stroke="#64748b" stroke-width="4"/>
 <circle cx="730" cy="690" r="12" fill="#94a3b8"/>
 <path d="M690 770 V800 M770 770 V800" stroke="#b8c4d2" stroke-width="7"/>
-<text x="730" y="835" text-anchor="middle" class="caption">Activo · polaridade + / −</text>\n<rect x="825" y="655" width="70" height="34" rx="8" fill="#d9bd85" stroke="#9b7c45" stroke-width="3"/>\n<path d="M895 672 H910" stroke="#94a3b8" stroke-width="5"/>\n<circle cx="920" cy="720" r="28" fill="#e2e8f0" stroke="#64748b" stroke-width="3"/>\n<path d="M897 720 H909 M909 704 L936 686 M909 736 L936 754" stroke="#52627a" stroke-width="4" fill="none"/>\n<text x="860" y="715" text-anchor="middle" class="caption">1 kΩ</text>\n<text x="920" y="775" text-anchor="middle" class="caption">NPN</text>
+<text x="730" y="835" text-anchor="middle" class="caption">Activo · polaridade + / −</text>
+<rect x="825" y="655" width="70" height="34" rx="8" fill="#d9bd85" stroke="#9b7c45" stroke-width="3"/>
+<path d="M895 672 H910" stroke="#94a3b8" stroke-width="5"/>
+<circle cx="920" cy="720" r="28" fill="#e2e8f0" stroke="#64748b" stroke-width="3"/>
+<path d="M897 720 H909 M909 704 L936 686 M909 736 L936 754" stroke="#52627a" stroke-width="4" fill="none"/>
+<text x="860" y="715" text-anchor="middle" class="caption">1 kΩ</text>
+<text x="920" y="775" text-anchor="middle" class="caption">NPN</text>
 
 <!-- breadboard and wires -->
 <rect x="975" y="535" width="470" height="330" rx="22" class="card"/>
